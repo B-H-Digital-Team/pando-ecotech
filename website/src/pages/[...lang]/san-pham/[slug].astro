@@ -1,0 +1,463 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
+import Headline from '../../../components/Headline.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import Gallery from '../../../components/Gallery.astro';
+import QuickView from '../../../components/QuickView.astro';
+import { CATEGORIES, MATERIALS, PRODUCTS, type Product } from '../../../data/products';
+import { SHOP } from '../../../data/shop';
+import { COMPANY } from '../../../data/site';
+import { DEFAULT_LOCALE, LOCALE_CODES, absoluteUrl, localePath, money, tx, useTranslations, type Locale } from '../../../i18n';
+import { photo } from '../../../lib/photos';
+
+export function getStaticPaths() {
+  return LOCALE_CODES.flatMap((locale) =>
+    PRODUCTS.map((product) => ({
+      params: { lang: locale === DEFAULT_LOCALE ? undefined : locale, slug: product.slug },
+      props: { locale, product },
+    })),
+  );
+}
+
+const { locale, product } = Astro.props as { locale: Locale; product: Product };
+const t = useTranslations(locale);
+const name = tx(locale, product.name);
+const category = CATEGORIES.find((c) => c.key === product.category)!;
+const materials = product.materials.map((key) => MATERIALS.find((m) => m.key === key)!);
+const shopItems = SHOP.filter((item) => product.shop?.includes(item.id));
+const priceFrom = shopItems.length ? Math.min(...shopItems.map((item) => item.price)) : null;
+const related = [
+  ...PRODUCTS.filter((p) => p.slug !== product.slug && p.category === product.category),
+  ...PRODUCTS.filter((p) => p.slug !== product.slug && p.category !== product.category && p.featured),
+].slice(0, 3);
+const path = `san-pham/${product.slug}`;
+const cover = await getImage({ src: photo(product.cover), width: 1200, format: 'jpg' });
+const thumbs = [product.cover, ...product.gallery].slice(0, 5);
+const zoomed = await Promise.all(thumbs.map((name) => getImage({ src: photo(name), width: 1600, format: 'webp' })));
+
+const productLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name,
+  description: tx(locale, product.intro),
+  image: [absoluteUrl(cover.src)],
+  category: tx(locale, category.name),
+  material: materials.map((m) => tx(locale, m.name)).join(', '),
+  brand: { '@type': 'Brand', name: COMPANY.name },
+  url: absoluteUrl(localePath(locale, path)),
+  ...(product.size ? { size: product.size } : {}),
+  ...(priceFrom
+    ? {
+        offers: {
+          '@type': 'AggregateOffer',
+          priceCurrency: 'VND',
+          lowPrice: priceFrom,
+          highPrice: Math.max(...shopItems.map((item) => item.price)),
+          offerCount: shopItems.length,
+          availability: 'https://schema.org/InStock',
+          url: absoluteUrl(localePath(locale, 'order')),
+        },
+      }
+    : {}),
+};
+---
+
+<Base
+  locale={locale}
+  page={path}
+  title={`${name} | Pando Ecotech`}
+  description={`${tx(locale, product.tagline)} ${tx(locale, product.intro).slice(0, 120)}...`}
+  image={product.cover}
+  breadcrumbs={[
+    { name: t.nav.products, path: localePath(locale, 'products') },
+    { name, path: localePath(locale, path) },
+  ]}
+  jsonLd={[productLd]}
+>
+  <article class="container product">
+    <nav class="crumbs rise" style="--d:0s" aria-label="Breadcrumb">
+      <a href={localePath(locale, 'products')}>← {t.products.back}</a>
+    </nav>
+
+    <div class="top">
+      <div class="media" data-lightbox>
+        <a class="main photo" href={zoomed[0].src} data-alt={name}>
+          <Image
+            src={photo(product.cover)}
+            alt={name}
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 960px) 52vw, 92vw"
+            loading="eager"
+            fetchpriority="high"
+            style={`view-transition-name: product-${product.slug}`}
+          />
+        </a>
+        <div class="thumbs">
+          {
+            thumbs.slice(1).map((name, index) => (
+              <a class="thumb photo" href={zoomed[index + 1].src} data-alt={tx(locale, product.name)} style={`--n:${index}`}>
+                <Image src={photo(name)} alt="" widths={[200, 320]} sizes="12vw" />
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="info">
+        <p class="tag rise" style="--d:0.05s">{tx(locale, category.name)}</p>
+        <Headline as="h1" text={name} animate accent={1} />
+        <p class="tagline rise" style="--d:0.45s">{tx(locale, product.tagline)}</p>
+        <p class="intro rise" style="--d:0.55s">{tx(locale, product.intro)}</p>
+
+        <dl class="specs rise" style="--d:0.65s">
+          <div>
+            <dt>{t.products.materials}</dt>
+            <dd class="mats">
+              {
+                materials.map((m) => (
+                  <span>
+                    <span class={`swatch sw-${m.key}`} /> {tx(locale, m.name)}
+                  </span>
+                ))
+              }
+            </dd>
+          </div>
+          {
+            product.size && (
+              <div>
+                <dt>{t.products.size}</dt>
+                <dd>{product.size}</dd>
+              </div>
+            )
+          }
+          {
+            product.colors && (
+              <div>
+                <dt>{t.products.colors}</dt>
+                <dd>{tx(locale, product.colors)}</dd>
+              </div>
+            )
+          }
+        </dl>
+
+        <div class="buy rise" style="--d:0.75s">
+          <p class="price">
+            {
+              priceFrom ? (
+                <>
+                  <small>{t.products.priceFrom}</small> {money(locale, priceFrom)}
+                </>
+              ) : (
+                t.products.contactPrice
+              )
+            }
+          </p>
+          {
+            shopItems.length > 0 && (
+              <ul class="variants">
+                {shopItems.map((item) => (
+                  <li>
+                    <span>
+                      <small>{tx(locale, item.name)}</small>
+                      <b>{money(locale, item.price)}</b>
+                    </span>
+                    <button type="button" class="btn btn-accent btn-sm" data-add={item.id} data-added-label={t.common.added}>
+                      + {t.common.addToOrder}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+          <div class="ctas">
+            {
+              priceFrom ? (
+                <a class="btn btn-ghost" href={localePath(locale, 'order')}>
+                  {t.products.orderThis} <span class="arrow" aria-hidden="true" />
+                </a>
+              ) : (
+                <a class="btn btn-accent" href={COMPANY.zalo} rel="noopener" target="_blank">
+                  {t.products.askThis} <span class="arrow" aria-hidden="true" />
+                </a>
+              )
+            }
+            <a class="btn btn-ghost" href={COMPANY.phoneHref}>{COMPANY.phone}</a>
+          </div>
+          <p class="note">{t.products.handmade}</p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <section class="section-tight container benefits">
+    <div class="section-head start">
+      <Headline text={t.products.benefits} accent={1} />
+    </div>
+    <ol class="b-grid" data-reveal-group>
+      {
+        product.benefits.map((benefit, index) => (
+          <li class="b spot">
+            <span class="n">0{index + 1}</span>
+            <h3>{tx(locale, benefit.title)}</h3>
+            <p>{tx(locale, benefit.text)}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="section-tight uses panel on-night">
+    <div class="container uses-inner">
+      <Headline text={t.products.uses} accent={1} />
+      <ul class="chips" data-reveal-group>
+        {tx(locale, product.uses).map((use) => <li>{use}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {
+    product.gallery.length > 0 && (
+      <section class="section-tight container">
+        <div class="section-head start">
+          <Headline text={t.products.gallery} accent={1} />
+        </div>
+        <Gallery photos={product.gallery} alt={name} columns={3} />
+      </section>
+    )
+  }
+
+  <section class="section-tight container">
+    <div class="section-head start">
+      <Headline text={t.products.related} />
+    </div>
+    <div class="related" data-reveal-group>
+      {related.map((p) => <ProductCard product={p} locale={locale} />)}
+    </div>
+  </section>
+  <QuickView locale={locale} />
+</Base>
+
+<style>
+  .product {
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+  }
+  .crumbs a {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .crumbs a:hover {
+    color: var(--accent);
+  }
+  .top {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+  @media (min-width: 960px) {
+    .top {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: start;
+    }
+    .media {
+      position: sticky;
+      top: calc(var(--header-h) + 1rem);
+    }
+  }
+  .main {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: var(--radius-xl);
+    cursor: zoom-in;
+  }
+  .thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+  .thumb {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    cursor: zoom-in;
+    animation: rise 0.9s var(--ease-out) both;
+    animation-delay: calc(0.5s + var(--n) * 0.08s);
+  }
+  .thumb img {
+    transition: transform 0.8s var(--ease-out);
+  }
+  .thumb:hover img {
+    transform: scale(1.08);
+  }
+  .info :global(h1) {
+    font-size: clamp(2.3rem, 4.6vw, 4.2rem);
+    margin-bottom: 1rem;
+  }
+  .tagline {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+  }
+  .intro {
+    color: var(--muted);
+    max-width: 38rem;
+  }
+  .specs {
+    margin: 1.8rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .specs div {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .specs dt {
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .specs dd {
+    margin: 0;
+  }
+  .mats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+  }
+  .mats > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .buy {
+    padding: 1.4rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .price {
+    margin: 0 0 1rem;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+  }
+  .price small {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+  .variants {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .variants li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0.55rem 0.55rem 0.9rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+  }
+  .variants small {
+    display: block;
+    font-size: 0.9rem;
+  }
+  .variants b {
+    color: var(--gold);
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .note {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .b-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 700px) {
+    .b-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .b-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .b {
+    padding: 1.6rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .n {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .b p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .uses {
+    margin-block: var(--section);
+  }
+  .uses-inner {
+    display: grid;
+    gap: 2rem;
+    padding-block: clamp(3rem, 6vw, 5rem);
+  }
+  @media (min-width: 900px) {
+    .uses-inner {
+      grid-template-columns: 1fr 1.4fr;
+      align-items: center;
+    }
+  }
+  .chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .chips li {
+    padding: 0.7rem 1.2rem;
+    border-radius: 999px;
+    background: var(--glass-night);
+    box-shadow: inset 0 0 0 1px var(--line-night);
+    font-weight: 500;
+  }
+  .related {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 700px) {
+    .related {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

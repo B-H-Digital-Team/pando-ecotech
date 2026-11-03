@@ -1,0 +1,253 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Headline from '../../components/Headline.astro';
+import { localePath, localeStaticPaths, useTranslations, type Locale } from '../../i18n';
+import { photo } from '../../lib/photos';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useTranslations(locale);
+const r = t.returns;
+---
+
+<Base
+  locale={locale}
+  page="returns"
+  title={t.meta.returns.title}
+  description={t.meta.returns.description}
+  image="returns-exchange"
+  breadcrumbs={[{ name: r.title, path: localePath(locale, 'returns') }]}
+>
+  <PageHeader locale={locale} tag={r.tag} title={r.title} lead={r.lead} crumbs={[{ name: r.title, path: '' }]} />
+
+  <section class="container intro">
+    <div class="card" data-reveal>
+      <h2>{r.purposeTitle}</h2>
+      <p class="muted">{r.purpose}</p>
+    </div>
+    <div class="card" data-reveal>
+      <h2>{r.whoTitle}</h2>
+      <ul class="check-list">{r.who.map((item) => <li>{item}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section-tight container">
+    <div class="section-head start">
+      <Headline text={r.casesTitle} accent={2} />
+    </div>
+    <ol class="cases" data-reveal-group>
+      {
+        r.cases.map((item, index) => (
+          <li class="spot">
+            <span class="n">3.{index + 1}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="windows panel on-night">
+    <div class="container section-tight win-inner">
+      <h2 data-reveal>{r.windowTitle}</h2>
+      <ul data-reveal-group>
+        {
+          r.windows.map((w) => (
+            <li>
+              <b>{w.days}</b>
+              <span>{w.who}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="muted" data-reveal>{r.windowNote}</p>
+    </div>
+  </section>
+
+  <section class="section-tight container">
+    <div class="section-head start">
+      <Headline text={r.stepsTitle} accent={1} />
+    </div>
+    <ol class="steps" data-reveal-group>
+      {
+        r.steps.map((step, index) => (
+          <li>
+            <span class="photo">
+              <Image src={photo(step.photo)} alt="" widths={[300, 520]} sizes="(min-width: 900px) 24vw, 46vw" />
+            </span>
+            <span class="sn">0{index + 1}</span>
+            <h3>{step.title}</h3>
+            <p class="muted">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="container lists">
+    <div class="card" data-reveal>
+      <h2>{r.conditionsTitle}</h2>
+      <ul class="check-list">{r.conditions.map((item) => <li>{item}</li>)}</ul>
+    </div>
+    <div class="card" data-reveal>
+      <h2>{r.feesTitle}</h2>
+      <ul class="check-list">{r.fees.map((item) => <li>{item}</li>)}</ul>
+    </div>
+    <div class="card excluded" data-reveal>
+      <h2>{r.excludedTitle}</h2>
+      <ul class="x-list">{r.excluded.map((item) => <li>{item}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section-tight container">
+    <p class="promise" data-reveal="scale">{r.promise}</p>
+  </section>
+</Base>
+
+<style>
+  .intro,
+  .lists {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 860px) {
+    .intro {
+      grid-template-columns: 1.3fr 1fr;
+    }
+    .lists {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .card {
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+  .cases {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 860px) {
+    .cases {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .cases li {
+    padding: 1.8rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .cases .n,
+  .sn {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .cases p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .windows {
+    margin-block: var(--section);
+  }
+  .win-inner {
+    display: grid;
+    gap: 1.5rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .win-inner h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+  }
+  .win-inner ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(2rem, 8vw, 6rem);
+  }
+  .win-inner li {
+    display: grid;
+  }
+  .win-inner b {
+    font-size: clamp(3.4rem, 9vw, 7rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--gold-light);
+  }
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .steps {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .steps .photo {
+    display: block;
+    aspect-ratio: 1;
+    margin-bottom: 1rem;
+  }
+  .steps h3 {
+    margin-bottom: 0.4rem;
+  }
+  .x-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .x-list li {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .x-list li::before {
+    content: '×';
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-top: 0.2em;
+    border-radius: 50%;
+    background: var(--danger);
+    color: var(--white);
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+  .promise {
+    margin: 0 auto;
+    max-width: 52rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    line-height: 1.35;
+    text-align: center;
+  }
+</style>

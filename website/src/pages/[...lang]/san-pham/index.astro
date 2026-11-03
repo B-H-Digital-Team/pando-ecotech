@@ -1,0 +1,245 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import QuickView from '../../../components/QuickView.astro';
+import { CATEGORIES, MATERIALS, PRODUCTS } from '../../../data/products';
+import { absoluteUrl, format, localePath, localeStaticPaths, tx, useTranslations, type Locale } from '../../../i18n';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useTranslations(locale);
+const counts = Object.fromEntries(CATEGORIES.map((c) => [c.key, PRODUCTS.filter((p) => p.category === c.key).length]));
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: t.nav.products,
+  itemListElement: PRODUCTS.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    url: absoluteUrl(localePath(locale, `san-pham/${product.slug}`)),
+    name: tx(locale, product.name),
+  })),
+};
+---
+
+<Base
+  locale={locale}
+  page="products"
+  title={t.meta.products.title}
+  description={t.meta.products.description}
+  image="coaster-palette"
+  breadcrumbs={[{ name: t.nav.products, path: localePath(locale, 'products') }]}
+  jsonLd={[itemList]}
+>
+  <PageHeader locale={locale} tag={t.products.tag} title={t.products.title} lead={t.products.lead} crumbs={[{ name: t.nav.products, path: '' }]} />
+
+  <section class="container catalogue" data-catalogue>
+    <aside class="side" aria-label={t.products.filterLabel}>
+      <div class="side-inner">
+        <p class="side-title">{t.products.filterLabel}</p>
+        <div class="filters" role="group" aria-label={t.products.filterLabel}>
+          <button type="button" class="filter" aria-pressed="true" data-filter="all">
+            <span>{t.products.all}</span>
+            <small>{PRODUCTS.length}</small>
+          </button>
+          {
+            CATEGORIES.map((c) => (
+              <button type="button" class="filter" aria-pressed="false" data-filter={c.key}>
+                <span>{tx(locale, c.name)}</span>
+                <small>{counts[c.key]}</small>
+              </button>
+            ))
+          }
+        </div>
+        <p class="count" aria-live="polite" data-count-label={t.products.count}>{format(t.products.count, { n: PRODUCTS.length })}</p>
+        <p class="side-title mats-title">{t.products.materials}</p>
+        <ul class="legend">
+          {
+            MATERIALS.map((m) => (
+              <li>
+                <span class={`swatch sw-${m.key}`} /> {tx(locale, m.name)}
+              </li>
+            ))
+          }
+        </ul>
+        <div class="b2b-mini">
+          <p>{t.products.b2b}</p>
+          <a class="link" href={localePath(locale, 'contact')}>{t.nav.contact} →</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="grid" data-reveal-group>
+      {PRODUCTS.map((product) => <ProductCard product={product} locale={locale} />)}
+    </div>
+  </section>
+  <QuickView locale={locale} />
+</Base>
+
+<script>
+  import '../../../scripts/catalogue';
+</script>
+
+<style>
+  .catalogue {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .catalogue {
+      grid-template-columns: 230px minmax(0, 1fr);
+    }
+    /* The column runs the full height of the grid, so its content can stay in view. */
+    .side {
+      align-self: stretch;
+    }
+    /* The sidebar follows the reading, clear of the header even when it returns. */
+    .side-inner {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+  }
+  .side-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .filters {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 44px;
+    padding: 0.55rem 0.9rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.98rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .filter small {
+    min-width: 1.8rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: var(--hover);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  .filter:hover {
+    color: var(--text);
+    background: var(--hover);
+  }
+  .filter[aria-pressed='true'] {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  /* A caramel tick marks the chosen group. */
+  .filter[aria-pressed='true']::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 22%;
+    bottom: 22%;
+    width: 3px;
+    border-radius: 3px;
+    background: var(--caramel-2);
+  }
+  .filter[aria-pressed='true'] small {
+    background: var(--caramel-2);
+    color: var(--caramel-ink);
+  }
+  .count {
+    margin: 0.9rem 0 0;
+    padding-left: 0.9rem;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .mats-title {
+    margin-top: 2rem;
+  }
+  .legend {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 0.9rem;
+    display: grid;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .b2b-mini {
+    margin-top: 2rem;
+    padding: 1.1rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 0.88rem;
+  }
+  .b2b-mini p {
+    margin: 0 0 0.6rem;
+    color: var(--muted);
+  }
+  /* Small screens: the groups become a row of tabs at the top (not sticky), the rest is hidden. */
+  @media (max-width: 959px) {
+    .side-title,
+    .count,
+    .legend,
+    .b2b-mini {
+      display: none;
+    }
+    .filters {
+      display: flex;
+      gap: 0.3rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+    }
+    .filter {
+      flex: none;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .filter[aria-pressed='true']::before {
+      display: none;
+    }
+  }
+  .grid {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+  @media (min-width: 560px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1200px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

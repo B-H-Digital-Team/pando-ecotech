@@ -1,0 +1,110 @@
+/*
+ * Every colour of the site, and only here (imported first by global.css).
+ * Components use these names, never a hex of their own.
+ *
+ * Theme colours use light-dark(light, dark): they follow the visitor's system
+ * until the header toggle pins one (data-theme on <html>, public/theme.js and
+ * scripts/motion.ts). Colours over photographs and espresso panels are fixed.
+ *
+ * Palette "Roastery": a crema-paper ground, espresso ink, leaf green for the
+ * eco promise, caramel gold for the one precious thing on a screen, and the
+ * blue and green of the Pando logo.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Page and surfaces */
+  --bg: light-dark(#f5f0e8, #0f0b08);
+  --surface: light-dark(#fffdf9, #1a1410);
+  --surface-2: light-dark(#ece4d7, #221a15);
+  --surface-3: light-dark(#e1d6c5, #2c231c);
+  --text: light-dark(#1c1510, #f2ebe1);
+  --muted: light-dark(#6a5b4f, #b5a797);
+  --faint: light-dark(#998a7c, #7a6d60);
+  --line: light-dark(rgb(28 21 16 / 0.1), rgb(255 240 220 / 0.1));
+  --line-strong: light-dark(rgb(28 21 16 / 0.2), rgb(255 240 220 / 0.22));
+  --hover: light-dark(rgb(28 21 16 / 0.06), rgb(255 240 220 / 0.08));
+  --glass: light-dark(rgb(255 252 246 / 0.78), rgb(22 17 13 / 0.78));
+
+  /* Brand */
+  --accent: light-dark(#2e6b45, #9bd4ad);
+  --accent-strong: light-dark(#1f4f32, #c0e6cb);
+  --accent-soft: light-dark(#dfeadf, #18301f);
+  --on-accent: light-dark(#ffffff, #0c1a10);
+  --gold: light-dark(#b07a35, #e2b373);
+  --gold-light: #f2d29c;
+  --gold-soft: light-dark(#f3e1c2, #3d2c17);
+  --gold-ink: #2a1904;
+  --gold-glow: rgb(214 160 90 / 0.5);
+  --gold-haze: rgb(214 160 90 / 0.18);
+  --leaf: #8fd3a5;
+  --leaf-glow: rgb(46 107 69 / 0.55);
+  --logo-blue: light-dark(#2a5ea8, #8db4ee);
+  --logo-green: light-dark(#7cb342, #a5d66f);
+  --focus: light-dark(#2e6b45, #9bd4ad);
+
+  /* Caramel metal: the primary call to action. */
+  --caramel-1: #f3d29a;
+  --caramel-2: #c98d43;
+  --caramel-3: #9a6224;
+  --caramel-ink: #2a1904;
+
+  /* Page tones: the ground drifts towards a material as its section passes (motion.ts). */
+  --tone-cream: var(--bg);
+  --tone-coffee: light-dark(#efe3d3, #1a120c);
+  --tone-tea: light-dark(#e8ecdc, #10140d);
+  --tone-bagasse: light-dark(#f7f2e3, #16130d);
+  --tone-beet: light-dark(#f6e7e7, #190e10);
+
+  /* Materials (product swatches) */
+  --mat-coffee: #4a3226;
+  --mat-coffee-2: #6b4a37;
+  --mat-tea: #7a7d43;
+  --mat-tea-2: #a3a564;
+  --mat-bagasse: #e7dcc3;
+  --mat-bagasse-2: #cbbd9a;
+  --mat-beet: #d897a4;
+  --mat-beet-2: #b86a7c;
+  --mat-rose: #e8b9b1;
+  --mat-rose-2: #c98a83;
+  --titan: #6d6f72;
+
+  /* Feedback */
+  --danger: light-dark(#b3261e, #ff8a80);
+  --success: light-dark(#2e6b45, #9bd4ad);
+
+  /* Espresso panels: dark in both themes */
+  --night: light-dark(#130e0a, #17110d);
+  --night-2: light-dark(#1f1712, #241b15);
+  --on-night: #f5efe6;
+  --on-night-muted: #b9ab9b;
+  --glass-night: rgb(255 245 230 / 0.08);
+  --line-night: rgb(255 245 230 / 0.14);
+
+  /* Over photographs: dark in both themes */
+  --ink-black: #0d0907;
+  --white: #ffffff;
+  --on-photo: #ffffff;
+  --on-photo-muted: rgb(255 255 255 / 0.8);
+  --on-photo-faint: rgb(255 255 255 / 0.55);
+  --scrim-strong: rgb(12 8 5 / 0.9);
+  --scrim: rgb(12 8 5 / 0.55);
+  --scrim-soft: rgb(12 8 5 / 0.18);
+  --glass-photo: rgb(255 255 255 / 0.12);
+  --glass-photo-strong: rgb(255 255 255 / 0.22);
+  --line-photo: rgb(255 255 255 / 0.22);
+
+  /* Shadows */
+  --shadow-ink: light-dark(rgb(40 25 12 / 0.18), rgb(0 0 0 / 0.6));
+  --shadow: 0 1px 2px light-dark(rgb(40 25 12 / 0.05), rgb(0 0 0 / 0.3)), 0 12px 32px -12px var(--shadow-ink);
+  --shadow-float:
+    0 2px 4px light-dark(rgb(40 25 12 / 0.05), rgb(0 0 0 / 0.3)), 0 40px 90px -30px light-dark(rgb(40 25 12 / 0.4), rgb(0 0 0 / 0.8));
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

@@ -1,0 +1,59 @@
+---
+/** An endless reel of words separated by small coffee beans; two copies make the loop seamless. */
+interface Props {
+  items: string[];
+  reverse?: boolean;
+  speed?: number;
+  class?: string;
+}
+const { items, reverse = false, speed = 38, class: className } = Astro.props;
+---
+
+<div class:list={['marquee', 'words-reel', { reverse }, className]} style={`--speed:${speed}s`} aria-hidden="true">
+  {
+    [0, 1].map(() => (
+      <ul class="marquee-track">
+        {items.map((item, index) => (
+          <li>
+            <span class:list={{ serif: index % 2 === 1 }}>{item}</span>
+            <i class="bean" />
+          </li>
+        ))}
+      </ul>
+    ))
+  }
+</div>
+
+<style>
+  .words-reel {
+    --gap: clamp(1.5rem, 3vw, 3rem);
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    white-space: nowrap;
+    font-size: clamp(2.4rem, 6vw, 5.5rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+  }
+  li .serif {
+    animation: none;
+  }
+  .bean {
+    width: 0.32em;
+    height: 0.44em;
+    border-radius: 50% / 45%;
+    background:
+      linear-gradient(100deg, transparent 45%, rgb(0 0 0 / 0.45) 50%, transparent 55%),
+      radial-gradient(circle at 35% 30%, var(--mat-coffee-2), var(--mat-coffee) 70%);
+    transform: rotate(25deg);
+    flex: none;
+  }
+</style>

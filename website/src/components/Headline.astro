@@ -1,0 +1,40 @@
+---
+/**
+ * A display headline whose last words are set in italic serif (lib/text.ts).
+ * `animate`: every word rises from behind a mask, on load (`true`) or when
+ * the heading scrolls into view (`'scroll'`, the default for h2).
+ */
+import { accentParts, indexedWords } from '../lib/text';
+
+interface Props {
+  text: string;
+  as?: 'h1' | 'h2' | 'h3' | 'p';
+  accent?: number;
+  animate?: boolean | 'scroll';
+  id?: string;
+  class?: string;
+}
+const { text, as: Tag = 'h2', accent = 2, animate = Tag === 'h2' ? 'scroll' : false, id, class: className } = Astro.props;
+const parts = accent > 0 ? accentParts(text, accent) : [{ text, accent: false }];
+const words = indexedWords(parts);
+---
+
+{
+  animate ? (
+    <Tag id={id} class:list={[animate === 'scroll' ? 'words-scroll' : 'words', className]} data-reveal={animate === 'scroll' ? 'words' : undefined}>
+      {words.map(({ word, accent: italic, index }) => (
+        <>
+          <span class="w">
+            <span class:list={{ serif: italic }} style={`--i:${index}`}>
+              {word}
+            </span>
+          </span>{' '}
+        </>
+      ))}
+    </Tag>
+  ) : (
+    <Tag id={id} class={className}>
+      {parts.map((part) => (part.accent ? <span class="serif">{part.text}</span> : <>{part.text} </>))}
+    </Tag>
+  )
+}

@@ -1,0 +1,185 @@
+---
+/**
+ * The five materials as coins on a slowly turning 3D ring (coins.ts). The
+ * face of each coin is the raw material; as a coin swings round to the back
+ * of the ring its reverse shows what Pando makes from it. Drag to spin, or
+ * pick a name below to bring that coin to the front.
+ */
+import { Image } from 'astro:assets';
+import Headline from './Headline.astro';
+import { MATERIALS } from '../data/products';
+import { tx, useTranslations, type Locale } from '../i18n';
+import { photo } from '../lib/photos';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const FACES: Record<string, { front: string; back: string }> = {
+  coffee: { front: 'coffee-grounds', back: 'coaster-coffee-tray' },
+  tea: { front: 'coaster-tea-pile', back: 'coaster-tea-hex' },
+  bagasse: { front: 'bagasse-reborn', back: 'coaster-bagasse-hex' },
+  beet: { front: 'cat-shortleg-trio', back: 'pot-cat' },
+  rose: { front: 'coaster-rose-card', back: 'coaster-trio' },
+};
+---
+
+<section class="section materials" data-tone="tea">
+  <div class="container">
+    <div class="section-head">
+      <p class="tag" data-reveal>{t.home.materialsTag}</p>
+      <Headline text={t.home.materialsTitle} />
+      <p class="lead" data-reveal>{t.home.materialsLead}</p>
+    </div>
+  </div>
+
+  <div class="stage" data-coins>
+    <div class="ring" style={`--n:${MATERIALS.length}`}>
+      {
+        MATERIALS.map((material, index) => (
+          <div class={`coin sw-${material.key}`} style={`--i:${index}`} data-coin>
+            <span class="face front">
+              <Image src={photo(FACES[material.key].front)} alt="" widths={[260, 420]} sizes="220px" />
+            </span>
+            <span class="face back">
+              <Image src={photo(FACES[material.key].back)} alt="" widths={[260, 420]} sizes="220px" />
+            </span>
+          </div>
+        ))
+      }
+    </div>
+    <span class="floor" aria-hidden="true"></span>
+  </div>
+
+  <div class="container">
+    <ul class="names" data-reveal-group>
+      {
+        MATERIALS.map((material, index) => (
+          <li>
+            <button type="button" data-goto={index} aria-pressed={index === 0 ? 'true' : 'false'}>
+              <span class={`swatch sw-${material.key}`} />
+              <b>{tx(locale, material.name)}</b>
+              <small>{tx(locale, material.note)}</small>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  import '../scripts/coins';
+</script>
+
+<style>
+  .stage {
+    --coin: clamp(130px, 17vw, 220px);
+    --radius-ring: clamp(170px, 30vw, 430px);
+    position: relative;
+    height: calc(var(--coin) * 2);
+    display: grid;
+    place-items: center;
+    perspective: 1500px;
+    touch-action: pan-y;
+    user-select: none;
+    cursor: grab;
+  }
+  .stage:active {
+    cursor: grabbing;
+  }
+  .ring {
+    position: relative;
+    width: var(--coin);
+    height: var(--coin);
+    transform-style: preserve-3d;
+    transform: rotateX(-10deg) rotateY(var(--angle, 0deg));
+  }
+  .coin {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateY(calc(var(--i) * 360deg / var(--n))) translateZ(var(--radius-ring));
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 9px;
+    background: conic-gradient(from 30deg, var(--sw), var(--sw-2), var(--sw), var(--sw-2), var(--sw));
+    box-shadow:
+      0 30px 50px -24px rgb(0 0 0 / 0.55),
+      inset 0 2px 0 rgb(255 255 255 / 0.35);
+    backface-visibility: hidden;
+  }
+  .face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid rgb(255 255 255 / 0.4);
+  }
+  .back {
+    transform: rotateY(180deg);
+  }
+  .floor {
+    position: absolute;
+    left: 50%;
+    bottom: 4%;
+    width: min(80vw, 900px);
+    height: 60px;
+    margin-left: min(-40vw, -450px);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--shadow-ink), transparent);
+    filter: blur(6px);
+    pointer-events: none;
+  }
+  .names {
+    list-style: none;
+    margin: clamp(1.5rem, 4vw, 3rem) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .names button {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.55rem 1rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
+  }
+  .names button:hover {
+    background: var(--hover);
+  }
+  .names button[aria-pressed='true'] {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  .names b {
+    font-weight: 500;
+  }
+  .names small {
+    grid-column: 2;
+    font-size: 0.8rem;
+    max-width: 13rem;
+    display: none;
+  }
+  .names button[aria-pressed='true'] small {
+    display: block;
+  }
+</style>

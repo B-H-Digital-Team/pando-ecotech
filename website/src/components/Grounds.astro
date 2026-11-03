@@ -1,0 +1,92 @@
+---
+/**
+ * Coffee grounds and glints drifting up through a panel: small specks of
+ * caramel light, each on its own slow path (pure CSS, positions fixed at
+ * build time so the page is stable). Only fades with reduced motion.
+ */
+interface Props {
+  count?: number;
+}
+const { count = 18 } = Astro.props;
+// A small deterministic generator: the same specks on every build.
+let seed = 7;
+const rand = (): number => {
+  seed = (seed * 16807) % 2147483647;
+  return seed / 2147483647;
+};
+const specks = Array.from({ length: count }, () => ({
+  x: Math.round(rand() * 100),
+  size: (2 + rand() * 4).toFixed(1),
+  dur: (9 + rand() * 12).toFixed(1),
+  delay: (-rand() * 20).toFixed(1),
+  sway: Math.round(rand() * 60 - 30),
+  bean: rand() > 0.7,
+}));
+---
+
+<div class="grounds" aria-hidden="true">
+  {
+    specks.map((s) => (
+      <span
+        class:list={['speck', { bean: s.bean }]}
+        style={`--x:${s.x}%;--s:${s.size}px;--dur:${s.dur}s;--delay:${s.delay}s;--sway:${s.sway}px`}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .grounds {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .speck {
+    position: absolute;
+    left: var(--x);
+    bottom: -12px;
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--gold-light), color-mix(in srgb, var(--gold) 60%, transparent) 60%, transparent 70%);
+    box-shadow: 0 0 calc(var(--s) * 3) var(--gold-glow);
+    opacity: 0;
+    animation: float-up var(--dur) linear var(--delay) infinite;
+  }
+  /* A few specks are tiny coffee beans, tumbling. */
+  .speck.bean {
+    width: calc(var(--s) * 2.2);
+    height: calc(var(--s) * 3);
+    border-radius: 50% / 45%;
+    background:
+      linear-gradient(100deg, transparent 46%, rgb(0 0 0 / 0.45) 50%, transparent 54%),
+      radial-gradient(circle at 35% 30%, var(--mat-coffee-2), var(--mat-coffee) 70%);
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.3);
+  }
+  @keyframes float-up {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    12% {
+      opacity: 0.9;
+    }
+    80% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--sway), -110vh) rotate(320deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .speck {
+      animation: none;
+      opacity: 0.4;
+      bottom: auto;
+      top: calc(var(--x) * 0.8);
+    }
+  }
+</style>

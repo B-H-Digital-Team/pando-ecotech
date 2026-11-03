@@ -1,0 +1,326 @@
+/*
+ * Site-wide effects outside the page flow: paper grain,
+ * the coffee-pour page transition, the Zalo bubble and the floating order bar.
+ * Their behaviour lives in src/scripts/motion.ts and src/scripts/cart.ts.
+ */
+
+/*
+ * Paper grain over the whole site, like printed stock. A still, plain layer:
+ * no blend mode and no animation, so the browser composites it once.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--grain);
+  opacity: 0.05;
+  pointer-events: none;
+}
+:root[data-theme='dark'] body::before {
+  filter: invert(1);
+  opacity: 0.035;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body::before {
+    filter: invert(1);
+    opacity: 0.035;
+  }
+}
+
+/*
+ * Coffee-pour page transition: a sheet of espresso with a rippling edge pours
+ * down over the page, the next page opens under it and the sheet drains away
+ * (motion.ts and public/theme.js).
+ */
+.pour {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+}
+.pour-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(60% 50% at 50% 45%, rgb(201 141 67 / 0.35), transparent 70%),
+    linear-gradient(180deg, #3b2418, #2a190f);
+  transform: translateY(-120%);
+}
+.pour-sheet::before,
+.pour-sheet::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 70' preserveAspectRatio='none'%3E%3Cpath d='M0 0h600v35c-50 0-50 30-100 30S450 25 400 25s-50 40-100 40-50-35-100-35-50 25-100 25S50 35 0 35Z' fill='%232a190f'/%3E%3C/svg%3E")
+    repeat-x 0 0 / 600px 70px;
+}
+html.is-pouring .pour-sheet::before,
+html.is-pouring .pour-sheet::after,
+html.pour-in .pour-sheet::before,
+html.pour-in .pour-sheet::after {
+  animation: ripple-edge 1.4s linear infinite;
+}
+.pour-sheet::after {
+  bottom: -69px;
+}
+.pour-sheet::before {
+  top: -69px;
+  transform: scaleY(-1);
+  animation-direction: reverse !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 70' preserveAspectRatio='none'%3E%3Cpath d='M0 0h600v35c-50 0-50 30-100 30S450 25 400 25s-50 40-100 40-50-35-100-35-50 25-100 25S50 35 0 35Z' fill='%233b2418'/%3E%3C/svg%3E");
+}
+@keyframes ripple-edge {
+  to {
+    background-position-x: 600px;
+  }
+}
+/* The logo in its true colours, on a round cream badge like a coaster. */
+.pour-badge {
+  display: grid;
+  place-items: center;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffdf8, #f1e8d8 70%);
+  box-shadow:
+    0 0 0 8px rgb(241 232 216 / 0.12),
+    0 30px 60px -20px rgb(0 0 0 / 0.6),
+    inset 0 -6px 14px rgb(120 90 50 / 0.12);
+}
+html.is-pouring .pour-badge {
+  animation: badge-in 0.45s var(--ease-out) both;
+}
+@keyframes badge-in {
+  from {
+    transform: scale(0.85) rotate(-8deg);
+  }
+}
+html.is-pouring .pour,
+html.pour-in .pour {
+  visibility: visible;
+}
+html.is-pouring .pour-sheet {
+  animation: pour-down 0.45s var(--ease-in-out) forwards;
+}
+html.pour-in .pour-sheet {
+  transform: none;
+}
+html.pour-in.is-draining .pour-sheet {
+  animation: pour-away 0.65s var(--ease-out) forwards;
+}
+@keyframes pour-down {
+  from {
+    transform: translateY(-120%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes pour-away {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(120%);
+  }
+}
+
+/* Zalo bubble, bottom right; the back-to-top ring sits above it. */
+.zalo-bubble {
+  position: fixed;
+  right: clamp(16px, 2.4vw, 32px);
+  bottom: calc(clamp(16px, 2.4vw, 32px) + var(--bar-h, 0px));
+  z-index: 56;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #0068ff;
+  color: var(--white);
+  box-shadow: 0 16px 34px -10px rgb(0 104 255 / 0.6);
+  text-decoration: none;
+  transition:
+    transform 0.4s var(--ease-spring),
+    bottom 0.3s var(--ease-out);
+}
+.zalo-bubble::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #0068ff;
+  opacity: 0.5;
+  z-index: -1;
+  animation: bubble-ping 2.4s ease-out infinite;
+}
+@keyframes bubble-ping {
+  70%,
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+.zalo-bubble b {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.zalo-bubble .tip {
+  position: absolute;
+  right: calc(100% + 12px);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(6px);
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .zalo-bubble:hover {
+    transform: scale(1.08) rotate(-6deg);
+  }
+  .zalo-bubble:hover .tip {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fab-top {
+  bottom: calc(clamp(16px, 2.4vw, 32px) + 68px + var(--bar-h, 0px)) !important;
+}
+
+/* The floating order bar: appears once something is in the order (cart.ts). */
+.cart-bar {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(14px, 2vw, 24px);
+  z-index: 57;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--gutter));
+  padding: 0.45rem 0.45rem 0.45rem 1.1rem;
+  border-radius: 999px;
+  background: var(--night);
+  color: var(--on-night);
+  box-shadow:
+    inset 0 0 0 1px var(--line-night),
+    0 24px 50px -16px rgb(0 0 0 / 0.55);
+  text-decoration: none;
+  transform: translate(-50%, 140%);
+  transition: transform 0.28s var(--ease-out);
+}
+.cart-bar.is-shown {
+  transform: translate(-50%, 0);
+}
+.cart-bar .count {
+  display: grid;
+  place-items: center;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  padding-inline: 0.4rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.cart-bar .sum {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.cart-bar .go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 42px;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: var(--caramel-2);
+  color: var(--caramel-ink);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.cart-bar.bump {
+  animation: bar-bump 0.35s var(--ease-out);
+}
+@keyframes bar-bump {
+  40% {
+    transform: translate(-50%, -6px) scale(1.04);
+  }
+}
+html:has(.cart-bar.is-shown) {
+  --bar-h: 70px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zalo-bubble::before,
+  .pour-sheet::before,
+  .pour-sheet::after {
+    animation: none;
+  }
+  .cart-bar {
+    transition: none;
+  }
+}
+
+/*
+ * A photograph that spreads open like a coffee stain on paper: the organic
+ * blot in public/fx/stain.svg grows from the centre as a mask (motion.ts adds
+ * .is-on). Without JavaScript the photo simply shows.
+ */
+html.js .stain {
+  -webkit-mask: url('/fx/stain.svg') 50% 50% / 0% 0% no-repeat;
+  mask: url('/fx/stain.svg') 50% 50% / 0% 0% no-repeat;
+  transition:
+    mask-size 1.8s var(--ease-out),
+    -webkit-mask-size 1.8s var(--ease-out);
+}
+html.js .stain.is-on {
+  -webkit-mask-size: 320% 320%;
+  mask-size: 320% 320%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.js .stain {
+    -webkit-mask: none;
+    mask: none;
+  }
+}
+
+/* The bean that flies from an "add to order" button to the order bar (cart.ts). */
+.fly-bean {
+  position: fixed;
+  z-index: 400;
+  width: 16px;
+  height: 22px;
+  border-radius: 50% / 45%;
+  background:
+    linear-gradient(100deg, transparent 44%, rgb(0 0 0 / 0.5) 50%, transparent 56%),
+    radial-gradient(circle at 35% 30%, var(--mat-coffee-2), var(--mat-coffee) 70%);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+}
+
+/* Endless loops rest while their block is off screen (motion.ts [data-idle]). */
+.is-idle,
+.is-idle * {
+  animation-play-state: paused !important;
+}

@@ -1,0 +1,206 @@
+---
+/**
+ * "Câu chuyện của chúng tôi": two photos overlapping at different scroll
+ * speeds, and the 2025 formula drawn as a bar that fills when it appears.
+ */
+import { Image } from 'astro:assets';
+import Headline from './Headline.astro';
+import { localePath, useTranslations, type Locale } from '../i18n';
+import { photo } from '../lib/photos';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const formula = [
+  { key: 'coffee', value: 60, label: locale === 'vi' ? 'Bã cà phê' : 'Coffee grounds' },
+  { key: 'bagasse', value: 30, label: locale === 'vi' ? 'Bã mía' : 'Bagasse' },
+  { key: 'bio', value: 10, label: locale === 'vi' ? 'Thành phần khác' : 'Other' },
+];
+---
+
+<section id="story" class="section story" data-tone="coffee">
+  <div class="container grid">
+    <div class="photos">
+      <div class="photo big drift stain">
+        <Image src={photo('coaster-palette')} alt="" widths={[480, 800, 1100]} sizes="(min-width: 960px) 45vw, 92vw" />
+      </div>
+      <div class="photo small" data-reveal="scale">
+        <Image src={photo('drinks-tray')} alt="" widths={[320, 520]} sizes="(min-width: 960px) 22vw, 46vw" />
+      </div>
+      <p class="stamp" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <defs><path id="stamp-circle" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"></path></defs>
+          <text><textPath href="#stamp-circle">NO PLASTIC · 100% RECYCLED · NET ZERO · </textPath></text>
+        </svg>
+        <span>2025</span>
+      </p>
+    </div>
+
+    <div class="copy">
+      <p class="tag" data-reveal>{t.home.storyTag}</p>
+      <Headline text={t.home.storyTitle} />
+      {
+        t.home.storyParagraphs.map((paragraph) => (
+          <p class="muted" data-reveal>
+            {paragraph}
+          </p>
+        ))
+      }
+      <div class="formula" data-reveal>
+        <div class="bar">
+          {formula.map((part) => <span class={`seg seg-${part.key}`} style={`--w:${part.value}%`} />)}
+        </div>
+        <ul>
+          {
+            formula.map((part) => (
+              <li>
+                <span class={`dot seg-${part.key}`} />
+                <b>{part.value}%</b> {part.label}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <a class="link" href={localePath(locale, 'story')} data-reveal>{t.home.secondaryCta} →</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: 1.05fr 1fr;
+    }
+  }
+  .photos {
+    position: relative;
+    padding: 0 12% 14% 0;
+  }
+  .big {
+    aspect-ratio: 4 / 4.4;
+    border-radius: var(--radius-xl);
+  }
+  .small {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-float);
+    border: 6px solid var(--bg);
+  }
+  .stamp {
+    position: absolute;
+    left: -14px;
+    bottom: 6%;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--gold-ink);
+    box-shadow: var(--shadow-float);
+  }
+  .stamp svg {
+    position: absolute;
+    inset: 0;
+    animation: spin 18s linear infinite;
+  }
+  .stamp text {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    fill: currentColor;
+  }
+  .stamp span {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .copy :global(h2) {
+    margin-bottom: 1.6rem;
+  }
+  .copy p {
+    max-width: 36rem;
+  }
+  .formula {
+    margin: 2rem 0;
+    max-width: 34rem;
+  }
+  .bar {
+    display: flex;
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .seg {
+    width: var(--w);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 1.4s var(--ease-out) 0.3s;
+  }
+  .seg + .seg {
+    transition-delay: 0.6s;
+  }
+  .seg + .seg + .seg {
+    transition-delay: 0.9s;
+  }
+  :global(.is-on) > .bar .seg,
+  :global(html:not(.js)) .seg {
+    transform: none;
+  }
+  .seg-coffee {
+    background: linear-gradient(90deg, var(--mat-coffee), var(--mat-coffee-2));
+  }
+  .seg-bagasse {
+    background: linear-gradient(90deg, var(--mat-bagasse-2), var(--mat-bagasse));
+  }
+  .seg-bio {
+    background: var(--accent);
+  }
+  .formula ul {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .formula li {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .formula b {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stamp svg {
+      animation: none;
+    }
+  }
+</style>

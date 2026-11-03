@@ -1,0 +1,98 @@
+---
+/**
+ * Partners and milestones: a row of partner names reeling past, then the
+ * news stories as an editorial grid (the Dubai story large).
+ */
+import Headline from './Headline.astro';
+import NewsCard from './NewsCard.astro';
+import Marquee from './Marquee.astro';
+import { NEWS } from '../data/news';
+import { localePath, useTranslations, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const [lead, ...rest] = NEWS.slice(0, 4);
+---
+
+<section class="section partners" data-tone="coffee">
+  <div class="container">
+    <div class="section-head start head">
+      <div>
+        <p class="tag" data-reveal>{t.home.partnersTag}</p>
+        <Headline text={t.home.partnersTitle} />
+      </div>
+      <a class="btn btn-ghost" href={localePath(locale, 'news')} data-reveal>{t.common.viewAll} <span class="arrow" aria-hidden="true"></span></a>
+    </div>
+  </div>
+  <Marquee class="names" items={['Cà Phin Dubai', 'EXPO COFFEE 2025', 'The Yên', 'Mộc Miên Coffee', 'Startup Wheel', 'Bến Tre DOST']} speed={42} />
+  <div class="container">
+    <div class="grid">
+      <div class="lead-story" data-reveal>
+        <NewsCard article={lead} locale={locale} large />
+      </div>
+      <div class="rest" data-reveal-group>
+        {rest.map((article) => <NewsCard article={article} locale={locale} />)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1.5rem;
+    max-width: none;
+  }
+  .head :global(h2) {
+    max-width: 18ch;
+  }
+  .partners :global(.names) {
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+    color: var(--faint);
+  }
+  .partners :global(.names li) {
+    font-size: clamp(1.8rem, 4vw, 3.4rem);
+  }
+  .grid {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: 1.35fr 1fr;
+    }
+  }
+  .rest {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 600px) and (max-width: 959px) {
+    .rest {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 960px) {
+    .rest :global(.news-card) {
+      grid-template-columns: 38% 1fr;
+      column-gap: 1.2rem;
+      align-items: start;
+    }
+    .rest :global(.news-card .photo) {
+      grid-row: span 3;
+      aspect-ratio: 1;
+      margin: 0;
+    }
+    .rest :global(.news-card .excerpt) {
+      display: none;
+    }
+    .rest :global(.news-card .title) {
+      font-size: 1.05rem;
+    }
+  }
+</style>

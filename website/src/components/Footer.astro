@@ -1,0 +1,152 @@
+---
+/**
+ * The footer: an espresso band pinned under the page on large screens, which
+ * slides up to uncover it. A giant wordmark rises across the bottom.
+ */
+import Logo from './Logo.astro';
+import Social from './Social.astro';
+import { localePath, tx, useTranslations, type Locale } from '../i18n';
+import { COMPANY } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer on-night">
+  <div class="container cols">
+    <div class="brand">
+      <Logo href={localePath(locale)} label={`Pando Ecotech - ${t.nav.home}`} />
+      <p>{t.footer.tagline}</p>
+      <a class="phone" href={COMPANY.phoneHref}>{COMPANY.phone} <span class="arrow" aria-hidden="true"></span></a>
+      <Social />
+    </div>
+    <nav aria-labelledby="footer-explore">
+      <h2 id="footer-explore">{t.footer.explore}</h2>
+      <ul>
+        <li><a href={localePath(locale, 'products')}>{t.nav.products}</a></li>
+        <li><a href={localePath(locale, 'order')}>{t.nav.order}</a></li>
+        <li><a href={localePath(locale, 'news')}>{t.nav.news}</a></li>
+      </ul>
+    </nav>
+    <nav aria-labelledby="footer-company">
+      <h2 id="footer-company">{t.footer.company}</h2>
+      <ul>
+        <li><a href={localePath(locale, 'story')}>{t.nav.story}</a></li>
+        <li><a href={localePath(locale, 'contact')}>{t.nav.contact}</a></li>
+        <li><a href={localePath(locale, 'returns')}>{t.returns.title}</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>{t.footer.contact}</h2>
+      <ul class="contact">
+        <li><a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a></li>
+        <li><a href={COMPANY.mapLink} rel="noopener" target="_blank">{tx(locale, COMPANY.address)}</a></li>
+        <li class="muted">{t.contact.taxId}: {COMPANY.taxId}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container legal-row">
+    <p>&copy; {year} {locale === 'vi' ? COMPANY.legalName : COMPANY.legalNameEn}. {t.footer.rights}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    padding-top: calc(var(--radius-xl) + clamp(3.5rem, 7vw, 5.5rem));
+    margin-top: calc(-1 * var(--radius-xl));
+    overflow: hidden;
+  }
+  @media (min-width: 900px) and (min-height: 760px) {
+    .site-footer {
+      position: sticky;
+      bottom: 0;
+    }
+  }
+  .site-footer :global(.logo) {
+    --logo-blue: var(--white);
+    --logo-green: var(--leaf);
+  }
+  .site-footer :global(.mark .fill) {
+    fill: var(--white);
+  }
+  .cols {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 820px) {
+    .cols {
+      grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+    }
+  }
+  .brand p {
+    margin: 1.5rem 0 1.25rem;
+    max-width: 24rem;
+    color: var(--muted);
+  }
+  .phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--gold-light);
+    text-decoration: none;
+  }
+  .cols h2 {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .cols ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.2rem;
+  }
+  .cols ul a {
+    display: inline-block;
+    padding-block: 0.3rem;
+    text-decoration: none;
+    transition:
+      color 0.2s ease,
+      transform 0.35s var(--ease-out);
+  }
+  .cols ul a:hover {
+    color: var(--gold-light);
+    transform: translateX(4px);
+  }
+  .contact {
+    font-size: 0.95rem;
+  }
+  .contact li {
+    padding-block: 0.3rem;
+  }
+  .legal-row {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.4rem 1.6rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .legal-row p {
+    margin: 0;
+  }
+</style>

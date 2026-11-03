@@ -1,0 +1,160 @@
+---
+/**
+ * Social numbers on mechanical odometer wheels: every digit is a strip that
+ * rolls round once and settles on its value when the row appears (CSS,
+ * .odometer gets .is-on from motion.ts). Each number links to the channel.
+ */
+import Headline from './Headline.astro';
+import { COMPANY, NUMBERS } from '../data/site';
+import { useTranslations, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const fmt = (value: number, compact = false): string =>
+  new Intl.NumberFormat(locale, compact ? { notation: 'compact', maximumFractionDigits: 1 } : {}).format(value);
+const DIGITS = [...'01234567890123456789'];
+const items = [
+  { value: NUMBERS.facebookFollowers, label: t.home.numbers.facebook, href: COMPANY.facebook, compact: false },
+  { value: NUMBERS.tiktokFollowers, label: t.home.numbers.tiktok, href: COMPANY.tiktok, compact: false },
+  { value: NUMBERS.tiktokLikes, label: t.home.numbers.likes, href: COMPANY.tiktok, compact: true },
+  { value: NUMBERS.tiktokVideos, label: t.home.numbers.videos, href: COMPANY.tiktok, compact: false },
+];
+---
+
+<section class="section-tight numbers" data-tone="beet">
+  <div class="container">
+    <div class="section-head start">
+      <p class="tag" data-reveal>{t.home.numbersTag}</p>
+      <Headline text={t.home.numbersTitle} />
+    </div>
+    <ul class="grid" data-reveal-group>
+      {
+        items.map((item) => (
+          <li>
+            <a class="stat spot" href={item.href} rel="noopener" target="_blank">
+              <span class="value">
+                <span class="visually-hidden">{fmt(item.value, item.compact)}</span>
+                <span class="odometer" aria-hidden="true">
+                  {[...fmt(item.value, item.compact)].map((char, k) =>
+                    /\d/.test(char) ? (
+                      <span class="dg">
+                        <span class="strip" style={`--d:${Number(char) + 10};--k:${k}`}>
+                          {DIGITS.map((d) => (
+                            <span>{d}</span>
+                          ))}
+                        </span>
+                      </span>
+                    ) : (
+                      <span class="ch">{char}</span>
+                    ),
+                  )}
+                </span>
+              </span>
+              <span class="label">{item.label}</span>
+              <span class="arrow" aria-hidden="true" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--line-strong);
+  }
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .grid li + li .stat {
+    border-left: 1px solid var(--line);
+  }
+  @media (max-width: 899px) {
+    .grid li:nth-child(3) .stat {
+      border-left: 0;
+    }
+    .grid li:nth-child(n + 3) .stat {
+      border-top: 1px solid var(--line);
+    }
+  }
+  .stat {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    height: 100%;
+    padding: clamp(1.4rem, 3vw, 2.4rem) clamp(1rem, 2vw, 1.8rem);
+    text-decoration: none;
+    color: var(--text);
+    transition: background-color 0.3s ease;
+  }
+  .stat:hover {
+    background: var(--hover);
+  }
+  .value {
+    font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+  .odometer {
+    display: inline-flex;
+    line-height: 1;
+  }
+  .dg {
+    display: inline-block;
+    height: 1em;
+    overflow: hidden;
+  }
+  .strip {
+    display: flex;
+    flex-direction: column;
+    transition: transform 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: calc(var(--k) * 90ms + 0.15s);
+  }
+  .strip span {
+    height: 1em;
+  }
+  .odometer:global(.is-on) .strip,
+  :global(html:not(.js)) .strip {
+    transform: translateY(calc(var(--d) * -1em));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .strip {
+      transition: none;
+    }
+  }
+  li:nth-child(odd) .value {
+    color: var(--accent);
+  }
+  .label {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .stat .arrow {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.4rem;
+    margin: 0;
+    opacity: 0;
+    transform: translate(-6px, 6px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.4s var(--ease-out);
+  }
+  .stat:hover .arrow {
+    opacity: 1;
+    transform: rotate(-45deg);
+  }
+</style>

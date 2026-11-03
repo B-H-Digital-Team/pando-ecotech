@@ -1,0 +1,104 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import StorySplit from '../../components/StorySplit.astro';
+import BendReel from '../../components/BendReel.astro';
+import Manifesto from '../../components/Manifesto.astro';
+import Materials from '../../components/Materials.astro';
+import Process from '../../components/Process.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Impact from '../../components/Impact.astro';
+import Numbers from '../../components/Numbers.astro';
+import Partners from '../../components/Partners.astro';
+import Cylinder from '../../components/Cylinder.astro';
+import QuickView from '../../components/QuickView.astro';
+import Headline from '../../components/Headline.astro';
+import { PRODUCTS } from '../../data/products';
+import { localePath, localeStaticPaths, useTranslations, type Locale } from '../../i18n';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useTranslations(locale);
+const featured = PRODUCTS.filter((product) => product.featured).slice(0, 6);
+const customers = [
+  'drinks-garden',
+  'cafe-friends',
+  'theyen-opening',
+  'drink-coffee',
+  'cafe-terrace',
+  'drink-matcha',
+  'cafe-service',
+  'theyen-drinks',
+  'cafe-garden',
+  'theyen-coasters',
+  'caphin-coffee',
+  'flatlay-desk',
+];
+---
+
+<Base locale={locale} page="home" title={t.meta.home.title} description={t.meta.home.description} overture showClosing>
+  <Hero locale={locale} />
+  <StorySplit locale={locale} />
+
+  <BendReel items={t.home.marquee} second={[t.home.heroTag, 'Pando Ecotech', 'Net Zero', t.home.storyTag]} />
+
+  <Manifesto text={t.home.manifesto} />
+  <Materials locale={locale} />
+  <Process locale={locale} />
+
+  <section class="section featured" data-tone="cream">
+    <div class="container">
+      <div class="section-head">
+        <p class="tag" data-reveal>{t.home.featuredTag}</p>
+        <Headline text={t.home.featuredTitle} />
+        <p class="lead" data-reveal>{t.home.featuredLead}</p>
+      </div>
+      <div class="grid" data-reveal-group>
+        {featured.map((product) => <ProductCard product={product} locale={locale} />)}
+      </div>
+      <p class="more" data-reveal>
+        <a class="btn btn-ghost" href={localePath(locale, 'products')}>{t.common.viewAll} <span class="arrow" aria-hidden="true"></span></a>
+      </p>
+    </div>
+  </section>
+
+  <Impact locale={locale} />
+  <Numbers locale={locale} />
+  <Partners locale={locale} />
+
+  <section class="section-tight customers" data-tone="tea">
+    <div class="container">
+      <div class="section-head">
+        <p class="tag" data-reveal>{t.home.galleryTag}</p>
+        <Headline text={t.home.galleryTitle} />
+        <p class="lead" data-reveal>{t.home.galleryLead}</p>
+      </div>
+    </div>
+    <Cylinder photos={customers} alt={t.home.galleryTitle} locale={locale} />
+  </section>
+  <QuickView locale={locale} />
+</Base>
+
+<style>
+  .grid {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .more {
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    text-align: center;
+  }
+</style>

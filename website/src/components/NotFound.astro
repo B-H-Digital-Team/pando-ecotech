@@ -1,0 +1,68 @@
+---
+/** The 404 page body: a coffee bean that spins over a big serif 404. */
+import Headline from './Headline.astro';
+import { localePath, useTranslations, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<section class="container nf">
+  <p class="code" aria-hidden="true">4<span class="bean"></span>4</p>
+  <Headline as="h1" text={t.notFound.title} animate />
+  <p class="lead rise" style="--d:0.5s">{t.notFound.text}</p>
+  <div class="ctas rise" style="--d:0.7s">
+    <a class="btn btn-accent" href={localePath(locale)}>{t.notFound.home} <span class="arrow" aria-hidden="true"></span></a>
+    <a class="btn btn-ghost" href={localePath(locale, 'products')}>{t.common.seeProducts}</a>
+  </div>
+</section>
+
+<style>
+  .nf {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    padding-block: clamp(4rem, 10vw, 8rem);
+  }
+  .code {
+    display: flex;
+    align-items: center;
+    gap: 0.1em;
+    margin: 0 0 1rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(6rem, 18vw, 12rem);
+    line-height: 1;
+    color: var(--gold);
+  }
+  .bean {
+    width: 0.62em;
+    height: 0.86em;
+    border-radius: 50% / 45%;
+    background:
+      linear-gradient(100deg, transparent 45%, rgb(0 0 0 / 0.45) 50%, transparent 55%),
+      radial-gradient(circle at 35% 30%, var(--mat-coffee-2), var(--mat-coffee) 70%);
+    animation: wobble 3s var(--ease-in-out) infinite;
+  }
+  @keyframes wobble {
+    50% {
+      transform: rotate(180deg) scale(0.9);
+    }
+  }
+  .nf :global(h1) {
+    max-width: 16ch;
+  }
+  .lead {
+    margin-inline: auto;
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

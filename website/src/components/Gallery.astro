@@ -1,0 +1,75 @@
+---
+/** A masonry of photos that open in the lightbox; each tile unmasks as it scrolls in. */
+import { Image, getImage } from 'astro:assets';
+import { photo } from '../lib/photos';
+
+interface Props {
+  photos: string[];
+  alt?: string;
+  columns?: number;
+}
+const { photos, alt = '', columns = 3 } = Astro.props;
+const items = await Promise.all(
+  photos.map(async (name) => ({ name, full: await getImage({ src: photo(name), width: 1600, format: 'webp' }) })),
+);
+---
+
+<div class="gallery" style={`--cols:${columns}`} data-lightbox data-reveal-group>
+  {
+    items.map((item) => (
+      <a class="tile photo" href={item.full.src} data-alt={alt}>
+        <Image src={photo(item.name)} alt={alt} widths={[360, 560, 800]} sizes="(min-width: 1000px) 30vw, 46vw" />
+        <span class="zoom" aria-hidden="true">+</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .gallery {
+    columns: 2;
+    column-gap: clamp(0.6rem, 1.4vw, 1rem);
+  }
+  @media (min-width: 900px) {
+    .gallery {
+      columns: var(--cols);
+    }
+  }
+  .tile {
+    display: block;
+    margin-bottom: clamp(0.6rem, 1.4vw, 1rem);
+    break-inside: avoid;
+    cursor: zoom-in;
+  }
+  .tile img {
+    height: auto;
+    transition:
+      transform 1s var(--ease-out),
+      filter 0.5s ease;
+  }
+  .tile:hover img {
+    transform: scale(1.05);
+  }
+  .zoom {
+    position: absolute;
+    right: 0.8rem;
+    bottom: 0.8rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: var(--glass);
+    font-size: 1.3rem;
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity 0.3s ease,
+      transform 0.4s var(--ease-spring);
+  }
+  .tile:hover .zoom {
+    opacity: 1;
+    transform: none;
+  }
+</style>

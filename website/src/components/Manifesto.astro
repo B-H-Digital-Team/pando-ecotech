@@ -1,0 +1,45 @@
+---
+/** A statement on an espresso panel, its last words in italic serif. */
+import Grounds from './Grounds.astro';
+
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const words = text.split(' ');
+const accent = new Set([words.length - 1, words.length - 2, words.length - 3]);
+---
+
+<section class="manifesto panel on-night grow-in">
+  <Grounds count={14} />
+  <div class="container">
+    <p class="statement">
+      {
+        words.map((word, index) => (
+          <>
+            <span class:list={['fw', { serif: accent.has(index) }]}>{word}</span>{' '}
+          </>
+        ))
+      }
+    </p>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    padding-block: clamp(6rem, 13vw, 11rem);
+  }
+  .statement {
+    margin: 0 auto;
+    max-width: 58rem;
+    font-size: clamp(1.8rem, 4.2vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.035em;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .fw {
+    display: inline;
+  }
+</style>

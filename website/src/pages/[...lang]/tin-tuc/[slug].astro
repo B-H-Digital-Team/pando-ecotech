@@ -1,0 +1,155 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
+import Headline from '../../../components/Headline.astro';
+import NewsCard from '../../../components/NewsCard.astro';
+import Gallery from '../../../components/Gallery.astro';
+import { NEWS, type Article } from '../../../data/news';
+import { COMPANY } from '../../../data/site';
+import { DEFAULT_LOCALE, LOCALE_CODES, absoluteUrl, localePath, tx, useTranslations, type Locale } from '../../../i18n';
+import { photo } from '../../../lib/photos';
+
+export function getStaticPaths() {
+  return LOCALE_CODES.flatMap((locale) =>
+    NEWS.map((article) => ({
+      params: { lang: locale === DEFAULT_LOCALE ? undefined : locale, slug: article.slug },
+      props: { locale, article },
+    })),
+  );
+}
+
+const { locale, article } = Astro.props as { locale: Locale; article: Article };
+const t = useTranslations(locale);
+const title = tx(locale, article.title);
+const path = `tin-tuc/${article.slug}`;
+const others = NEWS.filter((a) => a.slug !== article.slug).slice(0, 3);
+const cover = await getImage({ src: photo(article.cover), width: 1200, format: 'jpg' });
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: title,
+  description: tx(locale, article.excerpt),
+  image: [absoluteUrl(cover.src)],
+  inLanguage: locale,
+  author: { '@type': 'Organization', name: COMPANY.name, url: absoluteUrl('/') },
+  publisher: { '@type': 'Organization', name: COMPANY.name, logo: { '@type': 'ImageObject', url: absoluteUrl('/favicon.svg') } },
+  mainEntityOfPage: absoluteUrl(localePath(locale, path)),
+};
+---
+
+<Base
+  locale={locale}
+  page={path}
+  title={`${title} | Pando Ecotech`}
+  description={tx(locale, article.excerpt)}
+  image={article.cover}
+  breadcrumbs={[
+    { name: t.nav.news, path: localePath(locale, 'news') },
+    { name: title, path: localePath(locale, path) },
+  ]}
+  jsonLd={[articleLd]}
+>
+  <article>
+    <header class="container head">
+      <a class="back rise" style="--d:0s" href={localePath(locale, 'news')}>← {t.news.back}</a>
+      <p class="meta rise" style="--d:0.05s"><b>{tx(locale, article.kind)}</b> · {tx(locale, article.place)}</p>
+      <Headline as="h1" text={title} animate accent={3} />
+      <p class="lead rise" style="--d:0.6s">{tx(locale, article.excerpt)}</p>
+    </header>
+    <div class="cover panel photo" data-reveal="mask">
+      <Image
+        src={photo(article.cover)}
+        alt={title}
+        widths={[640, 1100, 1600, 2000]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        style={`view-transition-name: news-${article.slug}`}
+      />
+    </div>
+    <div class="container body prose">
+      {
+        article.body.map((block) =>
+          block.type === 'p' ? (
+            <p data-reveal>{tx(locale, block.text)}</p>
+          ) : block.type === 'h' ? (
+            <h2 data-reveal>{tx(locale, block.text)}</h2>
+          ) : block.type === 'list' ? (
+            <ul class="check-list" data-reveal-group>
+              {tx(locale, block.items).map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          ) : (
+            <div class="photos">
+              <Gallery photos={block.photos} alt={title} />
+            </div>
+          ),
+        )
+      }
+    </div>
+  </article>
+
+  <section class="section-tight container">
+    <div class="section-head start">
+      <Headline text={t.news.more} accent={1} />
+    </div>
+    <div class="more" data-reveal-group>
+      {others.map((a) => <NewsCard article={a} locale={locale} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .head {
+    padding-top: clamp(2rem, 6vw, 5rem);
+    max-width: 62rem;
+  }
+  .back {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+  .meta {
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .meta b {
+    color: var(--gold);
+  }
+  .head :global(h1) {
+    font-size: clamp(2.2rem, 5vw, 4.6rem);
+    margin-bottom: 1.2rem;
+  }
+  .cover {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    height: clamp(280px, 50vw, 640px);
+  }
+  .body {
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    font-size: 1.1rem;
+  }
+  .body .check-list {
+    margin-block: 1.5rem;
+  }
+  /* Photo rows break out of the text column, centred on it. */
+  .photos {
+    margin-block: 2rem;
+    width: min(100vw - 2 * var(--gutter), 64rem);
+    margin-inline: calc(50% - min(50vw - var(--gutter), 32rem));
+  }
+  .more {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 760px) {
+    .more {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

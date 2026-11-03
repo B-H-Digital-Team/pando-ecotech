@@ -1,0 +1,203 @@
+---
+/**
+ * A product in the catalogue. On hover the photo ripples like the surface of
+ * a cup (SVG displacement, ripple.ts) and a second photo opens in a circle
+ * from the pointer. The cover flies into the product page (shared
+ * view-transition name, so the link skips the pour transition: data-vt).
+ * The round button opens the quick view (QuickView.astro).
+ */
+import { Image } from 'astro:assets';
+import { CATEGORIES, MATERIALS, type Product } from '../data/products';
+import { localePath, tx, useTranslations, type Locale } from '../i18n';
+import { photo } from '../lib/photos';
+
+interface Props {
+  product: Product;
+  locale: Locale;
+  sizes?: string;
+}
+const { product, locale, sizes = '(min-width: 1100px) 400px, (min-width: 700px) 45vw, 92vw' } = Astro.props;
+const t = useTranslations(locale);
+const category = CATEGORIES.find((c) => c.key === product.category)!;
+const materials = product.materials.map((key) => MATERIALS.find((m) => m.key === key)!);
+const second = product.gallery.find((name) => name !== product.cover);
+---
+
+<div class="product-card spot" data-category={product.category} data-tilt="5">
+  <a class="cover-link" href={localePath(locale, `san-pham/${product.slug}`)} data-vt>
+    <span class="media" data-ripple>
+      <Image
+        class="img-a"
+        src={photo(product.cover)}
+        alt={tx(locale, product.name)}
+        widths={[360, 560, 800]}
+        sizes={sizes}
+        style={`view-transition-name: product-${product.slug}`}
+      />
+      {second && <Image class="img-b" src={photo(second)} alt="" widths={[360, 560, 800]} sizes={sizes} loading="lazy" />}
+      <span class="cat">{tx(locale, category.name)}</span>
+    </span>
+    <span class="body">
+      <span class="swatches" aria-label={materials.map((m) => tx(locale, m.name)).join(', ')}>
+        {materials.map((m) => <span class={`swatch sw-${m.key}`} title={tx(locale, m.name)} />)}
+      </span>
+      <span class="name">{tx(locale, product.name)}</span>
+      <span class="tagline">{tx(locale, product.tagline)}</span>
+    </span>
+  </a>
+  <button class="qv" type="button" data-quickview={product.slug} aria-label={`${t.common.quickView}: ${tx(locale, product.name)}`}>
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.6"></path>
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+    </svg>
+    <span>{t.common.quickView}</span>
+  </button>
+</div>
+
+<style>
+  .product-card {
+    position: relative;
+    height: 100%;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition:
+      box-shadow 0.5s var(--ease-out),
+      transform 0.6s var(--ease-out);
+  }
+  .product-card:hover {
+    box-shadow: var(--shadow-float);
+  }
+  .cover-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .media {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--ease-out);
+  }
+  .media:global(.rippling) img {
+    filter: url(#ripple);
+  }
+  /* The second photo opens in a circle from the pointer (--mx/--my from motion.ts). */
+  .img-b {
+    clip-path: circle(0 at var(--mx, 50%) var(--my, 50%));
+    transition:
+      clip-path 0.7s var(--ease-out),
+      transform 1.2s var(--ease-out) !important;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .product-card:hover .media img {
+      transform: scale(1.06);
+    }
+    .product-card:hover .img-b {
+      clip-path: circle(150% at var(--mx, 50%) var(--my, 50%));
+    }
+  }
+  .cat {
+    position: absolute;
+    left: 0.9rem;
+    top: 0.9rem;
+    z-index: 1;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .body {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.2rem 1.3rem 1.4rem;
+    flex: 1;
+  }
+  .swatches {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 0.25rem;
+  }
+  .name {
+    font-size: 1.18rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  .tagline {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .qv {
+    position: absolute;
+    right: 0.8rem;
+    top: 0.8rem;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 40px;
+    padding: 0 0.7rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      opacity 0.25s ease-out,
+      transform 0.25s ease-out;
+  }
+  .qv:hover {
+    background: var(--caramel-2);
+    color: var(--caramel-ink);
+  }
+  .qv span {
+    display: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .qv {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    .qv span {
+      display: inline;
+    }
+    .product-card:hover .qv,
+    .qv:focus-visible {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .img-b {
+      transition: none !important;
+    }
+    .media:global(.rippling) img {
+      filter: none;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/ripple';
+</script>

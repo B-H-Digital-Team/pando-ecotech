@@ -1,0 +1,192 @@
+---
+/**
+ * Every page: SEO head (canonical, hreflang, Open Graph, JSON-LD), header,
+ * main, closing call to action, footer, and the shared motion runtime.
+ */
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import Preloader from '../components/Preloader.astro';
+import Lockup from '../components/Lockup.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { LOCALES, absoluteUrl, alternates, localePath, tx, useTranslations, type Locale } from '../i18n';
+import { COMPANY } from '../data/site';
+import { SHOP } from '../data/shop';
+import { getImage } from 'astro:assets';
+import { photo } from '../lib/photos';
+
+interface Crumb {
+  name: string;
+  path: string;
+}
+
+interface Props {
+  locale: Locale;
+  /** Page key or path under the locale, for hreflang, canonical and the language switcher. */
+  page: string;
+  title: string;
+  description: string;
+  /** Photo name for social cards (src/assets/photos/). */
+  image?: string;
+  notFound?: boolean;
+  breadcrumbs?: Crumb[];
+  jsonLd?: Record<string, unknown>[];
+  showClosing?: boolean;
+  overture?: boolean;
+}
+
+const {
+  locale,
+  page,
+  title,
+  description,
+  image = 'hero-coasters',
+  notFound = false,
+  breadcrumbs = [],
+  jsonLd = [],
+  showClosing = true,
+  overture = false,
+} = Astro.props;
+const t = useTranslations(locale);
+const meta = LOCALES[locale];
+const canonical = absoluteUrl(localePath(locale, page));
+const og = await getImage({ src: photo(image), width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+const ogImage = absoluteUrl(og.src);
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${absoluteUrl('/')}#organization`,
+  name: COMPANY.name,
+  legalName: COMPANY.legalName,
+  url: absoluteUrl('/'),
+  logo: absoluteUrl('/favicon.svg'),
+  email: COMPANY.email,
+  telephone: '+84338845905',
+  taxID: COMPANY.taxId,
+  foundingDate: String(COMPANY.founded),
+  description: t.meta.home.description,
+  sameAs: [COMPANY.facebook, COMPANY.tiktok],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: COMPANY.street,
+    addressLocality: COMPANY.locality,
+    addressCountry: 'VN',
+  },
+};
+const store = {
+  '@context': 'https://schema.org',
+  '@type': 'Store',
+  '@id': `${absoluteUrl('/')}#store`,
+  name: COMPANY.name,
+  image: ogImage,
+  telephone: '+84338845905',
+  email: COMPANY.email,
+  url: absoluteUrl('/'),
+  address: { '@type': 'PostalAddress', streetAddress: tx(locale, COMPANY.address), addressCountry: 'VN' },
+  geo: { '@type': 'GeoCoordinates', latitude: COMPANY.geo.lat, longitude: COMPANY.geo.lng },
+  parentOrganization: { '@id': `${absoluteUrl('/')}#organization` },
+};
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: COMPANY.name,
+  url: absoluteUrl(localePath(locale)),
+  inLanguage: meta.hreflang,
+  publisher: { '@id': `${absoluteUrl('/')}#organization` },
+};
+const breadcrumbLd =
+  breadcrumbs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [{ name: t.nav.home, path: localePath(locale) }, ...breadcrumbs].map((crumb, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: crumb.name,
+          item: absoluteUrl(crumb.path),
+        })),
+      }
+    : null;
+const prices = JSON.stringify(Object.fromEntries(SHOP.map((item) => [item.id, item.price])));
+const structured = [...(page === 'home' ? [organization, store, website] : []), ...(breadcrumbLd ? [breadcrumbLd] : []), ...jsonLd];
+---
+
+<!doctype html>
+<html lang={meta.hreflang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline src="/theme.js"></script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {notFound && <meta name="robots" content="noindex" />}
+    {!notFound && <link rel="canonical" href={canonical} />}
+    {!notFound && alternates(page).map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f0e8" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0b08" />
+    <link rel="preload" href="/fonts/be-vietnam-pro-500-normal-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {locale === 'vi' && <link rel="preload" href="/fonts/be-vietnam-pro-500-normal-vietnamese.woff2" as="font" type="font/woff2" crossorigin />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={t.meta.siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={meta.ogLocale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {structured.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+  </head>
+  <body>
+    <div id="top"></div>
+    {overture && <Preloader />}
+    <div class="pour" aria-hidden="true"><div class="pour-sheet"><span class="pour-badge"><Lockup size={58} /></span></div></div>
+    <svg class="fx-defs" width="0" height="0" aria-hidden="true" style="position:absolute">
+      <filter id="ripple" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="3" result="noise"></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+      </filter>
+    </svg>
+    <a class="skip-link" href="#main">{t.nav.skip}</a>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <div class="pointer-halo" aria-hidden="true"></div>
+    <Header locale={locale} page={page} />
+    <div class="page">
+      <main id="main" tabindex="-1">
+        <slot />
+      </main>
+      {showClosing && <ClosingCta locale={locale} />}
+    </div>
+    <Footer locale={locale} />
+    <Lightbox locale={locale} />
+    <a class="zalo-bubble" href={COMPANY.zalo} rel="noopener" target="_blank" aria-label={t.common.zaloTip}>
+      <b>Zalo</b>
+      <span class="tip">{t.common.zaloTip}</span>
+    </a>
+    <a class="cart-bar" href={localePath(locale, 'order')} data-cart-bar data-prices={prices} data-here={String(page === 'order')}>
+      <span class="count">0</span>
+      <span>{t.common.orderBar}</span>
+      <span class="sum"></span>
+      <span class="go">{t.common.viewOrder} <span class="arrow" aria-hidden="true"></span></span>
+    </a>
+    <a class="fab-top" href="#top" aria-label={t.footer.backToTop} title={t.footer.backToTop} data-to-top>
+      <svg class="fab-ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"></circle></svg>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+        ><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"
+        ></path></svg
+      >
+    </a>
+    <script>
+      import '../scripts/motion';
+    </script>
+  </body>
+</html>

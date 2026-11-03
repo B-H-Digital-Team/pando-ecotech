@@ -1,0 +1,318 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Headline from '../../components/Headline.astro';
+import Gallery from '../../components/Gallery.astro';
+import Grounds from '../../components/Grounds.astro';
+import { GUIDES, SPIRIT, TIMELINE } from '../../data/story';
+import { localePath, localeStaticPaths, tx, useTranslations, type Locale } from '../../i18n';
+import { photo } from '../../lib/photos';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useTranslations(locale);
+---
+
+<Base
+  locale={locale}
+  page="story"
+  title={t.meta.story.title}
+  description={t.meta.story.description}
+  image="expo-team"
+  breadcrumbs={[{ name: t.nav.story, path: localePath(locale, 'story') }]}
+>
+  <PageHeader locale={locale} tag={t.story.tag} title={t.story.title} lead={t.story.lead} photo="karst-valley" crumbs={[{ name: t.nav.story, path: '' }]} />
+
+  <section class="section container name">
+    <div class="name-copy">
+      <p class="tag" data-reveal>{t.story.nameTag}</p>
+      <Headline text={t.story.nameTitle} />
+      <p class="muted" data-reveal>{t.story.nameText}</p>
+      <p class="slogan" data-reveal>{t.story.nameSlogan}</p>
+    </div>
+    <a class="info photo" href={photo('info-name-meaning').src} data-reveal="scale" target="_blank" rel="noopener">
+      <Image src={photo('info-name-meaning')} alt={t.story.nameTitle} widths={[600, 1000, 1600]} sizes="(min-width: 960px) 55vw, 92vw" />
+    </a>
+  </section>
+
+  <section class="section timeline" aria-labelledby="timeline-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="tag" data-reveal>{t.story.timelineTag}</p>
+        <Headline id="timeline-title" text={t.story.timelineTitle} />
+      </div>
+      <ol class="line">
+        {
+          TIMELINE.map((step, index) => (
+            <li class:list={['stop', { flip: index % 2 === 1 }]} data-reveal>
+              <span class="dot" aria-hidden="true" />
+              <div class="photo stop-photo drift">
+                <Image src={photo(step.photo)} alt={tx(locale, step.title)} widths={[420, 720]} sizes="(min-width: 900px) 40vw, 86vw" />
+              </div>
+              <div class="stop-copy">
+                <p class="years">{step.years}</p>
+                <h3>{tx(locale, step.title)}</h3>
+                <p class="muted">{tx(locale, step.text)}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="spirit panel on-night">
+    <Grounds count={12} />
+    <div class="container section">
+      <div class="section-head">
+        <p class="tag" data-reveal>{t.story.spiritTag}</p>
+        <Headline text={t.story.spiritTitle} />
+        <p class="lead" data-reveal>{t.story.spiritText}</p>
+      </div>
+      <ul class="pairs" data-reveal-group>
+        {
+          SPIRIT.map((pair) => (
+            <li>
+              <span class="a">{tx(locale, pair.a)}</span>
+              <span class="b serif">{tx(locale, pair.b)}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="spirit-photos" data-reveal-group>
+        <div class="photo"><Image src={photo('bagasse-reborn')} alt="" widths={[360, 600]} sizes="(min-width: 900px) 30vw, 92vw" /></div>
+        <div class="photo"><Image src={photo('info-circular')} alt="" widths={[360, 600, 900]} sizes="(min-width: 900px) 30vw, 92vw" /></div>
+        <div class="photo"><Image src={photo('pots-shelf')} alt="" widths={[360, 600]} sizes="(min-width: 900px) 30vw, 92vw" /></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container guide">
+    <div class="photo guide-photo drift stain">
+      <Image src={photo('expo-team')} alt="" widths={[480, 800, 1200]} sizes="(min-width: 960px) 45vw, 92vw" />
+    </div>
+    <div>
+      <p class="tag" data-reveal>{t.story.guideTag}</p>
+      <Headline text={t.story.guideTitle} />
+      <p class="muted" data-reveal>{t.story.guideText}</p>
+      <ul class="check-list" data-reveal-group>
+        {tx(locale, GUIDES).map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section-tight container vision">
+    <blockquote data-reveal="scale">
+      <p class="serif">“{t.story.visionQuote}”</p>
+      <footer>{t.story.visionBy}</footer>
+    </blockquote>
+  </section>
+
+  <section class="section-tight container">
+    <Gallery photos={['expo-group', 'history-students', 'expo-visitors', 'expo-group-2', 'history-startup-wheel', 'expo-booth']} alt="Pando Ecotech" />
+  </section>
+</Base>
+
+<style>
+  .name {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .name {
+      grid-template-columns: 0.9fr 1.2fr;
+    }
+  }
+  .name-copy :global(h2) {
+    margin-bottom: 1.4rem;
+  }
+  .slogan {
+    margin-top: 1.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--gold);
+    font-weight: 500;
+  }
+  .info {
+    display: block;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-float);
+  }
+
+  .line {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(3rem, 7vw, 6rem);
+  }
+  /* The spine, drawn as the timeline scrolls through the screen. */
+  .line::before,
+  .line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 11px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--line-strong);
+  }
+  .line::after {
+    background: linear-gradient(var(--accent), var(--gold));
+    transform-origin: top;
+  }
+  @supports (animation-timeline: view()) {
+    .line::after {
+      animation: spine linear both;
+      animation-timeline: view();
+      animation-range: entry 20% exit 60%;
+    }
+    @keyframes spine {
+      from {
+        transform: scaleY(0);
+      }
+    }
+  }
+  .stop {
+    position: relative;
+    display: grid;
+    gap: 1.4rem;
+    padding-left: 3rem;
+  }
+  .dot {
+    position: absolute;
+    left: 3px;
+    top: 0.4rem;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow:
+      inset 0 0 0 4px var(--gold),
+      0 0 0 6px var(--bg);
+  }
+  .stop-photo {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius);
+  }
+  .years {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+    line-height: 1.1;
+    color: var(--gold);
+  }
+  @media (min-width: 900px) {
+    .line::before,
+    .line::after {
+      left: 50%;
+      margin-left: -1px;
+    }
+    .stop {
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: center;
+      padding-left: 0;
+    }
+    .dot {
+      left: 50%;
+      top: 50%;
+      margin: -9px 0 0 -9px;
+    }
+    .stop.flip .stop-photo {
+      order: 2;
+    }
+    .stop:not(.flip) .stop-copy {
+      text-align: left;
+    }
+    .stop.flip .stop-copy {
+      text-align: right;
+    }
+  }
+
+  .spirit {
+    text-align: center;
+  }
+  .pairs {
+    list-style: none;
+    margin: 0 auto clamp(3rem, 6vw, 5rem);
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+    max-width: 60rem;
+  }
+  .pairs li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(2rem, 5vw, 4.2rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+  }
+  .spirit-photos {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 760px) {
+    .spirit-photos {
+      grid-template-columns: 1fr 1.4fr 1fr;
+      align-items: center;
+    }
+  }
+  .spirit-photos .photo {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+  }
+  .spirit-photos .photo:nth-child(2) img {
+    object-fit: contain;
+    background: var(--white);
+  }
+
+  .guide {
+    display: grid;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .guide {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .guide-photo {
+    aspect-ratio: 4 / 3.4;
+    border-radius: var(--radius-xl);
+  }
+  .guide :global(h2) {
+    margin-bottom: 1.2rem;
+  }
+  .guide .check-list {
+    margin-top: 1.6rem;
+  }
+
+  .vision blockquote {
+    margin: 0 auto;
+    max-width: 62rem;
+    text-align: center;
+  }
+  .vision p {
+    margin: 0 0 1.2rem;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.2;
+  }
+  .vision footer {
+    color: var(--muted);
+  }
+</style>

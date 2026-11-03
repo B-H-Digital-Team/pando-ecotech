@@ -1,0 +1,254 @@
+---
+/**
+ * The home page's opening moment: the Pando logo on its cream badge, three
+ * coffee beans drop into a cup that fills with espresso while a counter runs
+ * to 100%, steam rises, then the veil closes into a line of caramel light and
+ * opens onto the first screen.
+ * Pure CSS (the counter is an animated @property integer), about 2.2 s, once
+ * per visit (public/theme.js sets data-intro="seen").
+ */
+import Lockup from './Lockup.astro';
+---
+
+<div class="preloader" aria-hidden="true">
+  <div class="stage">
+    <span class="bean b1"></span>
+    <span class="bean b2"></span>
+    <span class="bean b3"></span>
+    <svg class="cup" viewBox="0 0 120 120" width="150" height="150">
+      <defs>
+        <clipPath id="cup-inside"><path d="M24 42h62v26a31 31 0 0 1-62 0Z"></path></clipPath>
+        <linearGradient id="espresso" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c98d43"></stop>
+          <stop offset="0.18" stop-color="#6b4a37"></stop>
+          <stop offset="1" stop-color="#2a190f"></stop>
+        </linearGradient>
+      </defs>
+      <g clip-path="url(#cup-inside)">
+        <g class="liquid">
+          <path class="wave" d="M-40 46c10 0 10-5 20-5s10 5 20 5 10-5 20-5 10 5 20 5 10-5 20-5 10 5 20 5 10-5 20-5 10 5 20 5V120H-40Z" fill="url(#espresso)"></path>
+        </g>
+      </g>
+      <path class="outline" d="M22 40h66v28a33 33 0 0 1-66 0Z M88 48h7a11 11 0 0 1 0 22h-8 M14 106c10 5 72 5 82 0" pathLength="1"></path>
+      <path class="steam s1" d="M44 30c-5-6 5-10 0-17" pathLength="1"></path>
+      <path class="steam s2" d="M55 30c-5-6 5-10 0-17" pathLength="1"></path>
+      <path class="steam s3" d="M66 30c-5-6 5-10 0-17" pathLength="1"></path>
+    </svg>
+    <p class="count"><span></span>%</p>
+    <span class="badge"><Lockup layout="row" size={34} /></span>
+  </div>
+</div>
+
+<style>
+  @property --pct {
+    syntax: '<integer>';
+    inherits: false;
+    initial-value: 0;
+  }
+  .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(45% 45% at 50% 50%, var(--leaf-glow), transparent 70%),
+      radial-gradient(30% 30% at 50% 60%, var(--gold-haze), transparent 70%), var(--ink-black);
+    color: var(--on-night);
+    pointer-events: none;
+    animation: shutter 0.7s cubic-bezier(0.77, 0, 0.175, 1) 1.95s forwards;
+  }
+  /* The veil closes into a thin line of light, then vanishes. */
+  .preloader::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    opacity: 0;
+    animation: line 0.9s ease-out 2.3s forwards;
+  }
+  :global(:root[data-intro='seen']) .preloader {
+    display: none;
+  }
+  .stage {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.4rem;
+  }
+  .cup {
+    overflow: visible;
+  }
+  .outline,
+  .steam {
+    fill: none;
+    stroke: var(--gold-light);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .outline {
+    filter: drop-shadow(0 0 6px var(--gold-glow));
+    animation: draw 0.7s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+  .liquid {
+    transform: translateY(68px);
+    animation: fill-cup 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards;
+  }
+  .wave {
+    animation: slosh 0.9s linear infinite;
+  }
+  .steam {
+    stroke-width: 1.6;
+    opacity: 0.8;
+    animation:
+      draw 0.8s ease-out forwards,
+      rise-steam 1.6s ease-out infinite;
+    animation-delay: 1.45s, 1.45s;
+  }
+  .s2 {
+    animation-delay: 1.6s, 1.6s;
+  }
+  .s3 {
+    animation-delay: 1.75s, 1.75s;
+  }
+  .bean {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 13px;
+    height: 18px;
+    margin-left: -6px;
+    border-radius: 50% / 45%;
+    background:
+      linear-gradient(100deg, transparent 44%, rgb(0 0 0 / 0.5) 50%, transparent 56%),
+      radial-gradient(circle at 35% 30%, var(--mat-coffee-2), var(--mat-coffee) 70%);
+    opacity: 0;
+    animation: drop 0.7s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+  }
+  .b1 {
+    --x: -14px;
+    animation-delay: 0.25s;
+  }
+  .b2 {
+    --x: 8px;
+    animation-delay: 0.45s;
+  }
+  .b3 {
+    --x: -2px;
+    animation-delay: 0.65s;
+  }
+  .count {
+    margin: 0.6rem 0 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--gold-light);
+    font-variant-numeric: tabular-nums;
+  }
+  .count span {
+    counter-reset: pct var(--pct);
+    animation: count 1.7s cubic-bezier(0.65, 0, 0.35, 1) 0.2s forwards;
+  }
+  .count span::before {
+    content: counter(pct);
+  }
+  /* The logo in its true colours, on a cream pill. */
+  .badge {
+    margin-top: 1.1rem;
+    padding: 0.75rem 1.4rem 0.75rem 1.1rem;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 30%, #fffdf8, #f1e8d8 75%);
+    box-shadow: 0 20px 40px -18px rgb(0 0 0 / 0.7);
+    animation: rise 0.8s var(--ease-out) 0.15s both;
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes fill-cup {
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes slosh {
+    to {
+      transform: translateX(40px);
+    }
+  }
+  @keyframes rise-steam {
+    to {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+  }
+  @keyframes drop {
+    0% {
+      opacity: 1;
+      transform: translate(var(--x), -80px) rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--x), 70px) rotate(220deg);
+    }
+  }
+  @keyframes count {
+    to {
+      --pct: 100;
+    }
+  }
+  @keyframes shutter {
+    to {
+      clip-path: inset(50% 0 50% 0);
+    }
+  }
+  @keyframes line {
+    20% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: scaleX(1.6);
+      visibility: hidden;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preloader {
+      animation: fade-out 0.5s ease 1s forwards;
+    }
+    .preloader::after,
+    .bean,
+    .steam {
+      display: none;
+    }
+    .outline {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+    .liquid {
+      transform: none;
+      animation: none;
+    }
+    .wave {
+      animation: none;
+    }
+    .count span {
+      --pct: 100;
+      animation: none;
+    }
+    @keyframes fade-out {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+  }
+</style>

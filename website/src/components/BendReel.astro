@@ -1,0 +1,85 @@
+---
+/**
+ * Two ribbons crossing like packing tape, each carrying words along a curve.
+ * The words run endlessly; scrolling fast bends the ribbons and speeds them
+ * up (bend.ts reads the scroll velocity from Lenis).
+ */
+interface Props {
+  items: string[];
+  second: string[];
+}
+const { items, second } = Astro.props;
+const line = (words: string[]): string => Array.from({ length: 3 }, () => words.join('  ✦  ')).join('  ✦  ');
+const ribbons = [
+  { id: 'bend-a', words: line(items), tone: 'caramel', dir: 1, tilt: -3 },
+  { id: 'bend-b', words: line(second), tone: 'espresso', dir: -1, tilt: 2.5 },
+];
+---
+
+<div class="bend" aria-hidden="true">
+  {
+    ribbons.map((ribbon) => (
+      <svg class={`ribbon ${ribbon.tone}`} viewBox="0 0 1440 220" preserveAspectRatio="none" style={`--tilt:${ribbon.tilt}deg`} data-bend={ribbon.dir}>
+        <defs>
+          <path id={ribbon.id} d="M-200 110 Q720 110 1640 110" />
+        </defs>
+        <use href={`#${ribbon.id}`} class="band" />
+        <text dy="0.35em">
+          <textPath href={`#${ribbon.id}`} startOffset="0">
+            {ribbon.words}
+          </textPath>
+        </text>
+      </svg>
+    ))
+  }
+</div>
+
+<style>
+  .bend {
+    position: relative;
+    height: clamp(170px, 20vw, 280px);
+    margin-block: clamp(2rem, 5vw, 4rem);
+    overflow: hidden;
+  }
+  .ribbon {
+    position: absolute;
+    left: -2%;
+    top: 50%;
+    width: 104%;
+    height: 100%;
+    overflow: visible;
+    transform: translateY(-50%) rotate(var(--tilt));
+  }
+  .band {
+    fill: none;
+    stroke-width: 74;
+  }
+  text {
+    font-family: var(--font);
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .caramel {
+    z-index: 2;
+  }
+  .caramel .band {
+    stroke: var(--caramel-2);
+  }
+  .caramel text {
+    fill: var(--caramel-ink);
+  }
+  .espresso .band {
+    stroke: var(--night);
+  }
+  .espresso text {
+    fill: var(--gold-light);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+  }
+</style>
+
+<script>
+  import '../scripts/bend';
+</script>

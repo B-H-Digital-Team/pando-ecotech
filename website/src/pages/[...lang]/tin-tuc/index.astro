@@ -1,0 +1,68 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import NewsCard from '../../../components/NewsCard.astro';
+import { NEWS } from '../../../data/news';
+import { localePath, localeStaticPaths, useTranslations, type Locale } from '../../../i18n';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const t = useTranslations(locale);
+const [lead, ...rest] = NEWS;
+---
+
+<Base
+  locale={locale}
+  page="news"
+  title={t.meta.news.title}
+  description={t.meta.news.description}
+  image="caphin-team"
+  breadcrumbs={[{ name: t.nav.news, path: localePath(locale, 'news') }]}
+>
+  <PageHeader locale={locale} tag={t.news.tag} title={t.news.title} lead={t.news.lead} crumbs={[{ name: t.nav.news, path: '' }]} />
+  <section class="container">
+    <div class="lead-story" data-reveal>
+      <NewsCard article={lead} locale={locale} large />
+    </div>
+    <div class="grid" data-reveal-group>
+      {rest.map((article) => <NewsCard article={article} locale={locale} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lead-story {
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  @media (min-width: 900px) {
+    .lead-story :global(.news-card) {
+      grid-template-columns: 1.5fr 1fr;
+      column-gap: 3rem;
+      align-items: center;
+    }
+    .lead-story :global(.news-card .photo) {
+      grid-row: span 3;
+      margin: 0;
+    }
+    .lead-story :global(.news-card .title) {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+    }
+  }
+  .grid {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem) clamp(1rem, 2vw, 1.5rem);
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

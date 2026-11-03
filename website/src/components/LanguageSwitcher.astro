@@ -1,0 +1,62 @@
+---
+/** A pill that switches between the two languages, keeping the same page. */
+import { LOCALES, LOCALE_CODES, localePath, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  page: string;
+  label: string;
+}
+const { locale, page, label } = Astro.props;
+---
+
+<nav class="lang" aria-label={label}>
+  {
+    LOCALE_CODES.map((code) => (
+      <a
+        href={localePath(code, page)}
+        hreflang={LOCALES[code].hreflang}
+        lang={LOCALES[code].hreflang}
+        aria-current={code === locale ? 'true' : undefined}
+        title={LOCALES[code].label}
+      >
+        {LOCALES[code].short}
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .lang {
+    position: relative;
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--hover);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  a {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    min-width: 2.4rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    color: var(--muted);
+    text-decoration: none;
+    transition:
+      color 0.25s ease,
+      background-color 0.3s var(--ease-out);
+  }
+  a:hover {
+    color: var(--text);
+  }
+  a[aria-current] {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+</style>

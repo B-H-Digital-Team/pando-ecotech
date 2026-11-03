@@ -1,0 +1,29 @@
+---
+/**
+ * The Pando mark (the blue folded shape of the logo), traced from the
+ * original logo into two paths. `draw` adds a stroke copy for the overture.
+ */
+interface Props {
+  size?: number;
+  class?: string;
+  draw?: boolean;
+}
+import { MARK_PATHS } from '../lib/mark';
+
+const { size = 34, class: className, draw = false } = Astro.props;
+---
+
+<svg class:list={['mark', className]} viewBox="-6 -6 206 262" width={size} height={Math.round(size * 1.27)} aria-hidden="true">
+  {MARK_PATHS.map((d, index) => <path class="fill" d={d} style={`--i:${index}`} />)}
+  {draw && MARK_PATHS.map((d, index) => <path class="line" d={d} pathLength="1" style={`--i:${index}`} />)}
+</svg>
+
+<style>
+  .mark {
+    flex: none;
+    overflow: visible;
+  }
+  .fill {
+    fill: var(--logo-blue);
+  }
+</style>

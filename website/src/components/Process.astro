@@ -1,0 +1,225 @@
+---
+/**
+ * "From leftovers to products": on large screens the section pins and the four
+ * steps slide sideways as the page scrolls (CSS view timeline), with a line
+ * that fills along, while a caramel shape morphs bean -> coaster -> planter ->
+ * cat (morph.ts). Elsewhere, or with reduced motion, the steps simply stack.
+ */
+import { Image } from 'astro:assets';
+import Headline from './Headline.astro';
+import { useTranslations, type Locale } from '../i18n';
+import { photo } from '../lib/photos';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const PHOTOS = ['coffee-grounds', 'bagasse-reborn', 'wall-tiles-grid', 'cat-lucky-group'];
+---
+
+<section class="process" aria-labelledby="process-title" data-morph data-tone="bagasse">
+  <div class="sticky">
+    <div class="container head">
+      <div>
+        <p class="tag" data-reveal>{t.home.processTag}</p>
+        <Headline id="process-title" text={t.home.processTitle} />
+      </div>
+      <div class="side">
+        <svg class="morph" viewBox="0 0 120 124" width="120" height="124" aria-hidden="true">
+          <defs>
+            <linearGradient id="morph-fill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="var(--caramel-1)"></stop>
+              <stop offset="0.55" stop-color="var(--caramel-2)"></stop>
+              <stop offset="1" stop-color="var(--caramel-3)"></stop>
+            </linearGradient>
+          </defs>
+          <path class="morph-shape" d="M60 10C95 10 112 45 102 80 92 112 55 120 35 105 10 88 12 45 30 25 38 15 48 10 60 10Z"></path>
+        </svg>
+        <div class="meter" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
+    <ol class="track">
+      {
+        t.home.process.map((step, index) => (
+          <li class="step spot">
+            <span class="photo">
+              <Image src={photo(PHOTOS[index])} alt="" widths={[420, 720]} sizes="(min-width: 900px) 34vw, 88vw" />
+            </span>
+            <span class="num">0{index + 1}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process {
+    padding-block: var(--section);
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .head :global(h2) {
+    max-width: 14ch;
+    margin: 0;
+  }
+  .side {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .morph {
+    width: clamp(72px, 9vw, 120px);
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 18px 30px var(--gold-glow));
+    animation: float-shape 5s ease-in-out infinite alternate;
+  }
+  .morph-shape {
+    fill: url(#morph-fill);
+  }
+  @keyframes float-shape {
+    to {
+      transform: translateY(-8px) rotate(-4deg);
+    }
+  }
+  .meter {
+    display: none;
+  }
+  .step {
+    transition:
+      box-shadow 0.5s ease,
+      transform 0.6s var(--ease-out);
+  }
+  .step.is-current {
+    box-shadow:
+      0 0 0 2px var(--caramel-2),
+      var(--shadow-float);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .morph {
+      animation: none;
+    }
+  }
+  .track {
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--gutter);
+    display: grid;
+    gap: 1.25rem;
+    max-width: var(--container);
+    margin-inline: auto;
+  }
+  @media (min-width: 700px) {
+    .track {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: 0.8rem 0.8rem 1.6rem;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .step .photo {
+    aspect-ratio: 4 / 3;
+    border-radius: calc(var(--radius-xl) - 8px);
+    margin-bottom: 0.6rem;
+  }
+  .num {
+    padding-inline: 0.9rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .step h3,
+  .step p {
+    padding-inline: 0.9rem;
+    margin: 0;
+  }
+  .step p {
+    color: var(--muted);
+  }
+
+  /* Pinned sideways scroll, where scroll-driven animations exist. */
+  @supports (animation-timeline: view()) {
+    @media (min-width: 1000px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+      .process {
+        height: 360vh;
+        padding-block: 0;
+        view-timeline: --process block;
+      }
+      .sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: grid;
+        align-content: center;
+        overflow: hidden;
+      }
+      .meter {
+        display: block;
+        width: min(32vw, 360px);
+        height: 3px;
+        border-radius: 3px;
+        background: var(--surface-3);
+        overflow: hidden;
+      }
+      .meter span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--gold));
+        transform-origin: left;
+        animation: meter linear both;
+        animation-timeline: --process;
+        animation-range: contain 0% contain 100%;
+      }
+      @keyframes meter {
+        from {
+          transform: scaleX(0);
+        }
+      }
+      .track {
+        display: flex;
+        gap: 1.5rem;
+        width: max-content;
+        max-width: none;
+        padding-inline: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter)));
+        animation: slide linear both;
+        animation-timeline: --process;
+        animation-range: contain 0% contain 100%;
+      }
+      @keyframes slide {
+        to {
+          transform: translateX(calc(-100% + 100vw));
+        }
+      }
+      .step {
+        width: min(36vw, 480px);
+      }
+      .step:nth-child(even) {
+        margin-top: 4rem;
+      }
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/morph';
+</script>

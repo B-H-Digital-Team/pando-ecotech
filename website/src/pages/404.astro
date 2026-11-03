@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+import NotFound from '../components/NotFound.astro';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations('vi');
+---
+
+<Base locale="vi" page="home" title={t.meta.notFound.title} description={t.meta.notFound.description} notFound showClosing={false}>
+  <NotFound locale="vi" />
+</Base>

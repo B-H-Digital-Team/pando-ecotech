@@ -1,0 +1,287 @@
+---
+/**
+ * A full-width glass bar: logo, five links, language, light/dark toggle and
+ * the order button. It tucks away while reading down and returns on the way
+ * up (motion.ts); a hairline appears once the page scrolls.
+ */
+import Logo from './Logo.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { PAGES, localePath, useTranslations, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  page: string;
+}
+const { locale, page } = Astro.props;
+const t = useTranslations(locale);
+const links = [
+  { key: 'products', label: t.nav.products },
+  { key: 'story', label: t.nav.story },
+  { key: 'news', label: t.nav.news },
+  { key: 'contact', label: t.nav.contact },
+] as const;
+const isCurrent = (key: (typeof links)[number]['key']): boolean => page === key || page.startsWith(`${PAGES[key]}/`);
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <Logo href={localePath(locale)} label={`Pando Ecotech - ${t.nav.home}`} />
+
+    <nav class="desktop-nav" aria-label={t.nav.mainNav}>
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={localePath(locale, link.key)} aria-current={isCurrent(link.key) ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <LanguageSwitcher locale={locale} page={page} label={t.nav.language} />
+      <button class="theme-toggle" type="button" aria-label={t.nav.theme} title={t.nav.theme} data-theme-toggle>
+        <svg class="theme-moon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"
+          ><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"
+          ></path></svg
+        >
+        <svg class="theme-sun" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"
+          ><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.7"></circle><path
+            d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"></path></svg
+        >
+      </button>
+      <a class="btn btn-order btn-sm cta" href={localePath(locale, 'order')} aria-current={page === 'order' ? 'page' : undefined}>{t.nav.order}</a>
+      <details class="mobile-menu">
+        <summary aria-label={t.nav.menu}>
+          <span class="bars" aria-hidden="true"></span>
+        </summary>
+        <nav aria-label={t.nav.mainNav}>
+          <ul>
+            <li><a href={localePath(locale)} aria-current={page === 'home' ? 'page' : undefined}>{t.nav.home}</a></li>
+            {
+              links.map((link, index) => (
+                <li style={`--i:${index + 1}`}>
+                  <a href={localePath(locale, link.key)} aria-current={isCurrent(link.key) ? 'page' : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <a class="btn btn-order" href={localePath(locale, 'order')}>{t.nav.order}</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 1px 0 transparent;
+    transition:
+      box-shadow 0.4s ease,
+      background-color 0.4s ease,
+      transform 0.5s var(--ease-out);
+    view-transition-name: site-header;
+  }
+  .site-header.is-scrolled {
+    box-shadow:
+      0 1px 0 var(--line),
+      0 14px 40px -24px var(--shadow-ink);
+  }
+  .site-header.is-tucked {
+    transform: translateY(-100%);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--header-h);
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .desktop-nav {
+    display: none;
+  }
+  .desktop-nav ul {
+    display: flex;
+    gap: 0.15rem;
+  }
+  .desktop-nav a {
+    position: relative;
+    display: inline-block;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+  .desktop-nav a:hover {
+    color: var(--text);
+    background: var(--hover);
+  }
+  .desktop-nav a[aria-current] {
+    color: var(--text);
+  }
+  .desktop-nav a[aria-current]::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.25rem;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.5s var(--ease-spring);
+  }
+  .theme-toggle:hover {
+    background: var(--hover);
+    color: var(--text);
+    transform: rotate(-25deg);
+  }
+  .cta {
+    display: none;
+  }
+  .mobile-menu summary {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--bg);
+    cursor: pointer;
+    list-style: none;
+  }
+  .mobile-menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .bars,
+  .bars::before,
+  .bars::after {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.35s var(--ease-out);
+  }
+  .bars {
+    position: relative;
+  }
+  .bars::before,
+  .bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+  .bars::before {
+    top: -6px;
+  }
+  .bars::after {
+    top: 6px;
+  }
+  .mobile-menu[open] .bars {
+    background: transparent;
+  }
+  .mobile-menu[open] .bars::before {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .mobile-menu[open] .bars::after {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+  .mobile-menu nav {
+    position: absolute;
+    left: var(--frame);
+    right: var(--frame);
+    top: calc(100% + 8px);
+    padding: 1rem 1.5rem 1.5rem;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    box-shadow: var(--shadow-float);
+    display: grid;
+    gap: 1rem;
+    animation: menu-in 0.45s var(--ease-out) both;
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+    }
+  }
+  .mobile-menu nav li {
+    animation: rise 0.6s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 50ms + 80ms);
+  }
+  .mobile-menu nav li + li {
+    border-top: 1px solid var(--line);
+  }
+  .mobile-menu nav a:not(.btn) {
+    display: block;
+    padding: 0.8rem 0;
+    font-size: 1.55rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+  }
+  .mobile-menu nav a[aria-current] {
+    color: var(--accent);
+  }
+  @media (max-width: 420px) {
+    .theme-toggle {
+      width: 38px;
+    }
+  }
+  @media (min-width: 1040px) {
+    .desktop-nav {
+      display: block;
+    }
+    .cta {
+      display: inline-flex;
+    }
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>

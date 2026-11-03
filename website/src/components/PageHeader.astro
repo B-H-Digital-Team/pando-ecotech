@@ -1,0 +1,104 @@
+---
+/**
+ * Opening of an inner page: breadcrumb, tag, a large headline rising word by
+ * word, a lead, and an optional photo that unmasks beneath it.
+ */
+import { Image } from 'astro:assets';
+import Headline from './Headline.astro';
+import { localePath, useTranslations, type Locale } from '../i18n';
+import { photo as getPhoto } from '../lib/photos';
+
+interface Crumb {
+  name: string;
+  path: string;
+}
+interface Props {
+  locale: Locale;
+  tag: string;
+  title: string;
+  lead?: string;
+  photo?: string;
+  photoAlt?: string;
+  crumbs?: Crumb[];
+}
+const { locale, tag, title, lead, photo, photoAlt = '', crumbs = [] } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<header class="page-header">
+  <div class="container">
+    {
+      crumbs.length > 0 && (
+        <nav class="crumbs rise" style="--d:0s" aria-label="Breadcrumb">
+          <ol>
+            <li>
+              <a href={localePath(locale)}>{t.nav.home}</a>
+            </li>
+            {crumbs.map((crumb, index) => (
+              <li>{index === crumbs.length - 1 ? <span aria-current="page">{crumb.name}</span> : <a href={crumb.path}>{crumb.name}</a>}</li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <p class="tag rise" style="--d:0.05s">{tag}</p>
+    <Headline as="h1" text={title} animate />
+    {lead && <p class="lead rise" style="--d:0.55s">{lead}</p>}
+    <slot />
+  </div>
+  {
+    photo && (
+      <div class="cover panel photo" data-reveal="mask">
+        <div class="drift">
+          <Image src={getPhoto(photo)} alt={photoAlt} widths={[640, 1100, 1600, 2000]} sizes="100vw" loading="eager" fetchpriority="high" />
+        </div>
+      </div>
+    )
+  }
+</header>
+
+<style>
+  .page-header {
+    padding-top: clamp(3rem, 8vw, 6.5rem);
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .page-header :global(h1) {
+    max-width: 16ch;
+    margin-bottom: 1.4rem;
+  }
+  .crumbs ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1.4rem;
+    padding: 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.4rem;
+    color: var(--faint);
+  }
+  .crumbs a {
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    color: var(--accent);
+  }
+  .cover {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    height: clamp(280px, 52vw, 620px);
+    border-radius: var(--radius-xl);
+  }
+  .cover .drift {
+    height: 100%;
+    overflow: hidden;
+  }
+  .cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

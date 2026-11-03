@@ -1,0 +1,111 @@
+---
+/**
+ * Customer photos on a 3D cylinder (cylinder.ts) that turns as the page
+ * scrolls and follows the pointer when dragged; click a photo to open it. Small screens and
+ * reduced motion get a sideways-scrolling strip instead.
+ */
+import { Image, getImage } from 'astro:assets';
+import { photo } from '../lib/photos';
+import type { Locale } from '../i18n';
+
+interface Props {
+  photos: string[];
+  alt: string;
+  locale: Locale;
+}
+const { photos, alt } = Astro.props;
+const items = await Promise.all(photos.map(async (name) => ({ name, full: await getImage({ src: photo(name), width: 1600, format: 'webp' }) })));
+---
+
+<div class="cyl-stage" data-cylinder>
+  <div class="cyl" style={`--n:${items.length}`} data-lightbox>
+    {
+      items.map((item, index) => (
+        <a class="panel-c" href={item.full.src} data-alt={alt} style={`--i:${index}`} draggable="false">
+          <Image src={photo(item.name)} alt={alt} widths={[300, 480]} sizes="260px" draggable="false" />
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  import '../scripts/cylinder';
+</script>
+
+<style>
+  .cyl-stage {
+    --w: clamp(180px, 19vw, 280px);
+    --r: calc(var(--w) * 1.95);
+    position: relative;
+    height: calc(var(--w) * 2.1);
+    perspective: 1700px;
+    perspective-origin: 50% 50%;
+    touch-action: pan-y;
+    user-select: none;
+    overflow: hidden;
+    cursor: grab;
+    mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .cyl {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--w);
+    height: calc(var(--w) * 4 / 3);
+    margin: calc(var(--w) * -2 / 3) 0 0 calc(var(--w) / -2);
+    transform-style: preserve-3d;
+    transform: translateZ(calc(-1 * var(--r))) rotateY(var(--turn, 0deg));
+  }
+  .cyl-stage:global(.is-dragging) {
+    cursor: grabbing;
+  }
+  .panel-c {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    transform: rotateY(calc(var(--i) * 360deg / var(--n))) translateZ(var(--r));
+    box-shadow: 0 30px 50px -25px rgb(0 0 0 / 0.5);
+  }
+  .panel-c img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    transition: transform 0.8s var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .panel-c:hover img {
+      transform: scale(1.06);
+    }
+  }
+  /* Small screens and reduced motion: a plain sideways strip. */
+  @media (max-width: 700px), (prefers-reduced-motion: reduce) {
+    .cyl-stage {
+      height: auto;
+      perspective: none;
+      overflow-x: auto;
+      mask: none;
+      scroll-snap-type: x mandatory;
+    }
+    .cyl {
+      position: static;
+      display: flex;
+      gap: 0.8rem;
+      width: max-content;
+      height: auto;
+      margin: 0;
+      padding-inline: var(--gutter);
+      transform: none;
+    }
+    .panel-c {
+      position: relative;
+      width: 62vw;
+      aspect-ratio: 3 / 4;
+      transform: none;
+      scroll-snap-align: center;
+    }
+  }
+</style>
