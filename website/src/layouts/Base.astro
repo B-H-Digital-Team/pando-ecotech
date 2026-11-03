@@ -174,7 +174,7 @@ const structured = [...(page === 'home' ? [organization, store, website] : []), 
     </a>
     <a class="cart-bar" href={localePath(locale, 'order')} data-cart-bar data-prices={prices} data-here={String(page === 'order')}>
       <span class="count">0</span>
-      <span>{t.common.orderBar}</span>
+      <span class="label">{t.common.orderBar}</span>
       <span class="sum"></span>
       <span class="go">{t.common.viewOrder} <span class="arrow" aria-hidden="true"></span></span>
     </a>

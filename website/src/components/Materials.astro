@@ -25,7 +25,7 @@ const FACES: Record<string, { front: string; back: string }> = {
 };
 ---
 
-<section class="section materials zone" data-tone="tea">
+<section class="section materials">
   <div class="container">
     <div class="section-head">
       <p class="tag" data-reveal>{t.home.materialsTag}</p>
@@ -74,6 +74,10 @@ const FACES: Record<string, { front: string; back: string }> = {
 </script>
 
 <style>
+  /* The ring is wider than a phone: its far coins are clipped at the screen edge instead of widening the page. */
+  .materials {
+    overflow-x: clip;
+  }
   .stage {
     --coin: clamp(130px, 17vw, 220px);
     --radius-ring: clamp(170px, 30vw, 430px);
@@ -181,5 +185,33 @@ const FACES: Record<string, { front: string; back: string }> = {
   }
   .names button[aria-pressed='true'] small {
     display: block;
+  }
+  /* Phones: the names stay on one row that scrolls sideways (the coin facing front is kept in view, coins.ts). */
+  @media (max-width: 700px) {
+    .names {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      margin-inline: calc(-1 * var(--gutter));
+      padding: 0.5rem var(--gutter) 1rem;
+      mask: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent);
+    }
+    .names::-webkit-scrollbar {
+      display: none;
+    }
+    .names li {
+      flex: none;
+      scroll-snap-align: center;
+    }
+    .names b {
+      white-space: nowrap;
+    }
+    .names small {
+      max-width: 11rem;
+    }
   }
 </style>

@@ -225,7 +225,7 @@ const vi = {
     payNote: 'Sau khi chuyển khoản, vui lòng gửi ảnh xác nhận thanh toán cho shop để Pando xác nhận đơn hàng.',
     sendProof: 'Gửi ảnh chuyển khoản qua Zalo',
     steps: [
-      { title: 'Chọn sản phẩm', text: 'Thêm món và số lượng ở danh sách bên trái.' },
+      { title: 'Chọn sản phẩm', text: 'Thêm món và số lượng trong danh sách sản phẩm.' },
       { title: 'Chuyển khoản', text: 'Thanh toán tiền hàng vào tài khoản MB Bank của Pando.' },
       { title: 'Gửi đơn và ảnh thanh toán', text: 'Qua Zalo hoặc biểu mẫu đặt hàng của Pando.' },
       { title: 'Nhận hàng', text: 'Nội thành 1 ngày, ngoại thành 1 - 3 ngày. Phí ship trả khi nhận.' },

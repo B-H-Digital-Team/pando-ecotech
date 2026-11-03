@@ -57,7 +57,7 @@ const ICONS: Record<ShopItem['group'], string> = {
   showClosing={false}
 >
   <PageHeader locale={locale} tag={t.order.tag} title={t.order.title} lead={t.order.lead} crumbs={[{ name: t.nav.order, path: '' }]}>
-    <ol class="steps rise" style="--d:0.7s">
+    <ol class="steps rail rise" style="--d:0.7s">
       {
         t.order.steps.map((step, index) => (
           <li>
@@ -244,6 +244,7 @@ const ICONS: Record<ShopItem['group'], string> = {
 
   .builder {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
     align-items: start;
   }
@@ -384,13 +385,40 @@ const ICONS: Record<ShopItem['group'], string> = {
   .stepper input::-webkit-outer-spin-button {
     -webkit-appearance: none;
   }
+  /* Phones: the name across the top, the price and the stepper share the line below it. */
   @media (max-width: 520px) {
     .item {
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'thumb name name'
+        'thumb price step';
+      column-gap: 0.8rem;
+      row-gap: 0.3rem;
+    }
+    .thumb {
+      grid-area: thumb;
+      align-self: start;
+      width: 64px;
+      height: 64px;
+    }
+    .meta {
+      display: contents;
+    }
+    .name {
+      grid-area: name;
+    }
+    .price {
+      grid-area: price;
     }
     .stepper {
-      grid-column: 1 / -1;
-      justify-self: end;
+      grid-area: step;
+    }
+    .stepper button {
+      width: 40px;
+      height: 40px;
+    }
+    .stepper input {
+      width: 2.2rem;
     }
   }
 
@@ -413,6 +441,7 @@ const ICONS: Record<ShopItem['group'], string> = {
   }
   .receipt-head {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.6rem;
     padding: 1.1rem var(--pad);

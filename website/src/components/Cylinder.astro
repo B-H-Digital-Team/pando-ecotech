@@ -1,8 +1,8 @@
 ---
 /**
  * Customer photos on a 3D cylinder (cylinder.ts) that turns as the page
- * scrolls and follows the pointer when dragged; click a photo to open it. Small screens and
- * reduced motion get a sideways-scrolling strip instead.
+ * scrolls and follows the pointer (or a finger) when dragged; click a photo to open it.
+ * Phones get a smaller, tighter ring; reduced motion gets a sideways-scrolling strip.
  */
 import { Image, getImage } from 'astro:assets';
 import { photo } from '../lib/photos';
@@ -81,8 +81,21 @@ const items = await Promise.all(photos.map(async (name) => ({ name, full: await 
       transform: scale(1.06);
     }
   }
-  /* Small screens and reduced motion: a plain sideways strip. */
-  @media (max-width: 700px), (prefers-reduced-motion: reduce) {
+  /* Phones: a smaller ring, so the photo in front and its neighbours fit the screen. */
+  @media (max-width: 700px) {
+    .cyl-stage {
+      --w: 46vw;
+      --r: calc(var(--w) * 1.55);
+      height: calc(var(--w) * 1.75);
+      perspective: 900px;
+      mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    }
+    .panel-c {
+      border-radius: 14px;
+    }
+  }
+  /* Reduced motion: a plain sideways strip. */
+  @media (prefers-reduced-motion: reduce) {
     .cyl-stage {
       height: auto;
       perspective: none;

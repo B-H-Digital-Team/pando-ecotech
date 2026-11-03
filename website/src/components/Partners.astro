@@ -33,7 +33,7 @@ const [lead, ...rest] = NEWS.slice(0, 4);
       <div class="lead-story" data-reveal>
         <NewsCard article={lead} locale={locale} large />
       </div>
-      <div class="rest" data-reveal-group>
+      <div class="rest rail" data-reveal-group>
         {rest.map((article) => <NewsCard article={article} locale={locale} />)}
       </div>
     </div>

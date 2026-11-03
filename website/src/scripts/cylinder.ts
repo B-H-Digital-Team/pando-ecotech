@@ -5,7 +5,7 @@
  * (motion.ts checks data-dragging before opening the lightbox).
  */
 const stage = document.querySelector<HTMLElement>('[data-cylinder]');
-const flat = matchMedia('(max-width: 700px), (prefers-reduced-motion: reduce)').matches;
+const flat = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (stage && !flat) {
   const cyl = stage.querySelector<HTMLElement>('.cyl')!;

@@ -83,7 +83,7 @@ const t = useTranslations(locale);
           ))
         }
       </ul>
-      <div class="spirit-photos" data-reveal-group>
+      <div class="spirit-photos rail" data-reveal-group>
         <div class="photo"><Image src={photo('bagasse-reborn')} alt="" widths={[360, 600]} sizes="(min-width: 900px) 30vw, 92vw" /></div>
         <div class="photo"><Image src={photo('info-circular')} alt="" widths={[360, 600, 900]} sizes="(min-width: 900px) 30vw, 92vw" /></div>
         <div class="photo"><Image src={photo('pots-shelf')} alt="" widths={[360, 600]} sizes="(min-width: 900px) 30vw, 92vw" /></div>
@@ -209,6 +209,18 @@ const t = useTranslations(locale);
     font-size: clamp(1.8rem, 3.4vw, 2.8rem);
     line-height: 1.1;
     color: var(--gold);
+  }
+  /* Phones: tighter stops and wider, shorter photos, so the story reads in fewer screens. */
+  @media (max-width: 899px) {
+    .line {
+      gap: 2.25rem;
+    }
+    .stop {
+      gap: 0.9rem;
+    }
+    .stop-photo {
+      aspect-ratio: 16 / 9;
+    }
   }
   @media (min-width: 900px) {
     .line::before,

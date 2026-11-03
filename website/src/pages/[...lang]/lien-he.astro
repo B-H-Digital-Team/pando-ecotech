@@ -159,6 +159,30 @@ const cards = [
   .card-c:hover .arrow {
     transform: rotate(-45deg);
   }
+  /* Phones: each way to reach Pando is one compact row, icon on the left. */
+  @media (max-width: 799px) {
+    .cards {
+      gap: 0.6rem;
+    }
+    .card-c {
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 0.9rem;
+      row-gap: 0.05rem;
+      align-items: center;
+      padding: 0.9rem 3.4rem 0.9rem 0.9rem;
+    }
+    .ic {
+      grid-row: span 2;
+      width: 44px;
+      height: 44px;
+      margin: 0;
+    }
+    .card-c .arrow {
+      top: 50%;
+      right: 1rem;
+      margin-top: -0.75rem;
+    }
+  }
   .office {
     display: grid;
     gap: clamp(2rem, 5vw, 4rem);

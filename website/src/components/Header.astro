@@ -160,6 +160,23 @@ const isCurrent = (key: (typeof links)[number]['key']): boolean => page === key 
     align-items: center;
     gap: 0.4rem;
   }
+  /* The smallest phones (320px): tighter gaps so the logo and the four controls fit on one line. */
+  @media (max-width: 360px) {
+    .bar {
+      gap: 0.5rem;
+    }
+    .actions {
+      gap: 0.15rem;
+    }
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+    }
+    .mobile-menu summary {
+      width: 42px;
+      height: 42px;
+    }
+  }
   .theme-toggle {
     display: grid;
     place-items: center;

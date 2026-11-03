@@ -13,6 +13,10 @@ if (stage) {
   const count = stage.querySelectorAll('[data-coin]').length;
   const step = 360 / count;
   const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-goto]')];
+  const names = buttons[0]?.closest<HTMLElement>('.names');
+  let touchingNames = false;
+  names?.addEventListener('pointerdown', () => (touchingNames = true));
+  addEventListener('pointerup', () => (touchingNames = false));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let angle = 0;
   let spin = reduced ? 0 : 0.12;
@@ -30,6 +34,12 @@ if (stage) {
     if (index !== front) {
       front = index;
       buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
+      // On phones the names scroll sideways: bring the front one into view, unless the visitor is swiping them.
+      const current = buttons[index]?.parentElement;
+      if (names && current && !touchingNames && names.scrollWidth > names.clientWidth) {
+        const left = current.offsetLeft - (names.clientWidth - current.offsetWidth) / 2;
+        names.scrollTo({ left, behavior: reduced ? 'auto' : 'smooth' });
+      }
     }
   };
 

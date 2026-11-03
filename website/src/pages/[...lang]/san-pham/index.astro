@@ -85,8 +85,10 @@ const itemList = {
 </script>
 
 <style>
+  /* One column that never grows past the screen: the row of filter tabs scrolls inside it instead. */
   .catalogue {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: clamp(1.5rem, 3vw, 3rem);
     align-items: start;
   }
@@ -230,12 +232,8 @@ const itemList = {
   }
   .grid {
     display: grid;
-    gap: clamp(1rem, 2vw, 1.5rem);
-  }
-  @media (min-width: 560px) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.7rem, 2vw, 1.5rem);
   }
   @media (min-width: 1200px) {
     .grid {

@@ -55,7 +55,7 @@ const customers = [
         <Headline text={t.home.featuredTitle} />
         <p class="lead" data-reveal>{t.home.featuredLead}</p>
       </div>
-      <div class="grid" data-reveal-group>
+      <div class="grid rail" data-reveal-group>
         {featured.map((product) => <ProductCard product={product} locale={locale} />)}
       </div>
       <p class="more" data-reveal>
@@ -67,7 +67,7 @@ const customers = [
   <Impact locale={locale} />
   <Partners locale={locale} />
 
-  <section class="section-tight customers zone" data-tone="bagasse">
+  <section class="section-tight customers">
     <div class="container">
       <div class="section-head">
         <p class="tag" data-reveal>{t.home.galleryTag}</p>

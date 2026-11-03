@@ -194,7 +194,7 @@ const productLd: Record<string, unknown> = {
     <div class="section-head start">
       <Headline text={t.products.benefits} accent={1} />
     </div>
-    <ol class="b-grid" data-reveal-group>
+    <ol class="b-grid rail" data-reveal-group>
       {
         product.benefits.map((benefit, index) => (
           <li class="b spot">
@@ -231,7 +231,7 @@ const productLd: Record<string, unknown> = {
     <div class="section-head start">
       <Headline text={t.products.related} />
     </div>
-    <div class="related" data-reveal-group>
+    <div class="related rail" data-reveal-group>
       {related.map((p) => <ProductCard product={p} locale={locale} />)}
     </div>
   </section>
