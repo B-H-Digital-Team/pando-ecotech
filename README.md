@@ -119,12 +119,6 @@ website/src/i18n/ui/vi.ts
 website/src/i18n/ui/en.ts
 ```
 
-## Thông số mạng xã hội
-
-Các số liệu Facebook và TikTok trong trang chủ được lưu trực tiếp trong `website/src/data/site.ts` và **không tự động cập nhật theo thời gian thực**.
-
-Khi số liệu mạng xã hội thay đổi, cần cập nhật thủ công trong `NUMBERS` sau đó build lại website.
-
 ## Triển khai
 
 `npm run build` sẽ tạo thư mục `website/dist/`. Nội dung của thư mục này có thể được triển khai lên:

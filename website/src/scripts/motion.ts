@@ -27,7 +27,7 @@ function initReveals(): void {
     { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
   );
   document
-    .querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-group], .odometer, .stain')
+    .querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-group], .stain')
     .forEach((target) => observer.observe(target));
 }
 

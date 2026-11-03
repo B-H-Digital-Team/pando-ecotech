@@ -28,7 +28,7 @@ Thư mục `dist/` có thể đưa thẳng lên Cloudflare Pages, Netlify, Verce
 
 | Thư mục | Nội dung |
 | --- | --- |
-| `src/data/` | Toàn bộ nội dung: `site.ts` (liên hệ, ngân hàng, phí ship, số liệu mạng xã hội), `products.ts`, `shop.ts` (giá theo form đặt hàng), `news.ts`, `story.ts` |
+| `src/data/` | Toàn bộ nội dung: `site.ts` (liên hệ, ngân hàng, phí ship), `products.ts`, `shop.ts` (giá theo form đặt hàng), `news.ts`, `story.ts` |
 | `src/i18n/ui/` | Chữ giao diện `vi.ts` và `en.ts` (en phải cùng cấu trúc với vi) |
 | `src/assets/photos/` | Ảnh đã chọn lọc, Astro tự tối ưu sang WebP nhiều kích thước |
 | `src/components/` | Các khối giao diện (Hero, Process, Materials, ProductCard, ...) |

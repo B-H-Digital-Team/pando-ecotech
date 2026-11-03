@@ -45,14 +45,3 @@ export const SHIPPING = {
   outer: { min: 20000, max: 35000 },
 } as const;
 
-/** Public numbers (Facebook and TikTok pages, 2026-11-03; product formula from the home page). */
-export const NUMBERS = {
-  coffee: 60,
-  bagasse: 30,
-  plastic: 0,
-  facebookFollowers: 5392,
-  tiktokFollowers: 9328,
-  tiktokLikes: 129700,
-  tiktokVideos: 551,
-  yearsOfResearch: 4,
-} as const;
