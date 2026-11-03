@@ -81,13 +81,17 @@ const items = await Promise.all(photos.map(async (name) => ({ name, full: await 
       transform: scale(1.06);
     }
   }
-  /* Phones: a smaller ring, so the photo in front and its neighbours fit the screen. */
+  /*
+   * Phones: smaller photos on the same ring proportions. Twelve photos need a
+   * radius of at least w / (2 sin 15deg), about 1.93w, or their edges overlap;
+   * 2.05w leaves a thin gap between neighbours.
+   */
   @media (max-width: 700px) {
     .cyl-stage {
-      --w: 46vw;
-      --r: calc(var(--w) * 1.55);
-      height: calc(var(--w) * 1.75);
-      perspective: 900px;
+      --w: 44vw;
+      --r: calc(var(--w) * 2.05);
+      height: calc(var(--w) * 1.7);
+      perspective: 1000px;
       mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     }
     .panel-c {
