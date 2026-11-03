@@ -138,8 +138,15 @@ function initPour(): void {
 
 const THEME_KEY = 'pando-theme';
 
+/** The browser bar takes the page ground of the theme in use (light unless the visitor chose dark). */
+function syncThemeColor(): void {
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (meta) meta.content = getComputedStyle(document.body).backgroundColor;
+}
+
 function initThemeToggle(): void {
   const root = document.documentElement;
+  syncThemeColor();
   const current = (): 'light' | 'dark' => {
     if (root.dataset.theme === 'dark' || root.dataset.theme === 'light') return root.dataset.theme;
     return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -154,6 +161,7 @@ function initThemeToggle(): void {
         root.classList.add('theme-switching');
         root.dataset.theme = next;
         void root.offsetWidth;
+        syncThemeColor();
         requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
       };
       if ('startViewTransition' in document && !reduced()) {

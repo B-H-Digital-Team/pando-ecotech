@@ -114,7 +114,7 @@ const structured = [...(page === 'home' ? [organization, store, website] : []), 
 ---
 
 <!doctype html>
-<html lang={meta.hreflang}>
+<html lang={meta.hreflang} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -125,8 +125,7 @@ const structured = [...(page === 'home' ? [organization, store, website] : []), 
     {!notFound && <link rel="canonical" href={canonical} />}
     {!notFound && alternates(page).map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f0e8" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0b08" />
+    <meta name="theme-color" content="#f5f0e8" />
     <link rel="preload" href="/fonts/be-vietnam-pro-500-normal-latin.woff2" as="font" type="font/woff2" crossorigin />
     {locale === 'vi' && <link rel="preload" href="/fonts/be-vietnam-pro-500-normal-vietnamese.woff2" as="font" type="font/woff2" crossorigin />}
 

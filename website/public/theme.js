@@ -1,7 +1,8 @@
 /*
  * Runs in <head> before the first paint: applies the light/dark choice saved
  * by the header toggle (src/scripts/motion.ts) so the page never flashes the
- * other theme. No saved choice: the system setting decides (color-scheme).
+ * other theme. No saved choice: light, whatever the system setting (the
+ * page is served with data-theme="light", Base.astro).
  * Also starts a page reached through the coffee-pour transition covered, and
  * decides whether the home page's opening moment (Preloader.astro) plays:
  * once per visit, not again when the visitor comes from another page here.
@@ -9,9 +10,9 @@
 (function () {
   try {
     var theme = localStorage.getItem('pando-theme');
-    if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   } catch (error) {
-    /* Storage blocked: follow the system. */
+    /* Storage blocked: stay light. */
   }
   try {
     // Arriving through the coffee-pour transition: start covered, motion.ts drains the sheet.
