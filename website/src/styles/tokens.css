@@ -4,7 +4,7 @@
  *
  * Theme colours use light-dark(light, dark): they follow the visitor's system
  * until the header toggle pins one (data-theme on <html>, public/theme.js and
- * scripts/motion.ts). Colours over photographs and espresso panels are fixed.
+ * scripts/motion.ts). Colours over photographs and the espresso chrome are fixed.
  *
  * Palette "Roastery": a crema-paper ground, espresso ink, leaf green for the
  * eco promise, caramel gold for the one precious thing on a screen, and the
@@ -70,11 +70,25 @@
   --mat-rose-2: #c98a83;
   --titan: #6d6f72;
 
+  /* Transfer slip (dat-hang.astro): the bank's blue, warmed by the materials' colours. Fixed in both themes. */
+  --slip-ink: #10224a;
+  --slip-blue: #2453a0;
+  --slip-sky: #8ab8f2;
+  --slip-lime: #b6d96a;
+
   /* Feedback */
   --danger: light-dark(#b3261e, #ff8a80);
   --success: light-dark(#2e6b45, #9bd4ad);
 
-  /* Espresso panels: dark in both themes */
+  /* Roast panels (.on-panel): a toasted crema band in light, espresso in dark. */
+  --panel: light-dark(#ebe1d2, #17110d);
+  --panel-2: light-dark(#fbf7f0, #241b15);
+  --panel-glow: light-dark(rgb(46 107 69 / 0.12), rgb(46 107 69 / 0.55));
+  --panel-haze: light-dark(rgb(214 160 90 / 0.26), rgb(214 160 90 / 0.18));
+  --line-panel: light-dark(rgb(28 21 16 / 0.12), rgb(255 245 230 / 0.14));
+  --glass-panel: light-dark(rgb(255 252 246 / 0.62), rgb(255 245 230 / 0.07));
+
+  /* Espresso: dark in both themes (lightbox, preloader, the floating order bar) */
   --night: light-dark(#130e0a, #17110d);
   --night-2: light-dark(#1f1712, #241b15);
   --on-night: #f5efe6;

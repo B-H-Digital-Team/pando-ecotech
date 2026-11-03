@@ -79,6 +79,13 @@ const labels = {
     color: var(--text);
     box-shadow: var(--shadow-float);
     overflow: auto;
+    overscroll-behavior: contain;
+    /* Long content still scrolls on small screens, without a bar breaking the rounded card. */
+    scrollbar-width: none;
+  }
+  .qv-dialog::-webkit-scrollbar,
+  .qv-info::-webkit-scrollbar {
+    display: none;
   }
   .qv-dialog[open] {
     animation: qv-in 0.26s var(--ease-out);
@@ -100,9 +107,40 @@ const labels = {
     gap: clamp(1rem, 3vw, 2.5rem);
     padding: clamp(0.8rem, 2vw, 1.2rem);
   }
+  /*
+   * Large screens: the card is as tall as its text (never taller than the
+   * screen) and the photo stretches to match, so the dialog itself never
+   * scrolls. Only text taller than the screen scrolls, inside its column.
+   */
   @media (min-width: 820px) {
-    .qv-card {
+    .qv-dialog {
+      overflow: hidden;
+    }
+    .qv-dialog .qv-card {
       grid-template-columns: 1.05fr 1fr;
+      grid-template-rows: minmax(0, 1fr);
+      max-height: calc(100dvh - 2rem);
+    }
+    .qv-dialog .qv-media {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 0.5rem;
+      min-height: 0;
+    }
+    .qv-dialog .qv-main {
+      height: 100%;
+      min-height: 22rem;
+      aspect-ratio: auto;
+    }
+    .qv-dialog .qv-thumbs {
+      grid-template-columns: repeat(4, minmax(0, 84px));
+      margin-top: 0;
+    }
+    .qv-dialog .qv-info {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
     }
   }
   .qv-close {

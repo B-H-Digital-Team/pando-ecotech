@@ -188,7 +188,6 @@ html.theme-switching *::after {
   color: var(--sheen-base);
   padding-inline: 0.04em;
 }
-.on-night .serif,
 .on-photo .serif {
   --sheen-base: var(--gold-light);
   --sheen-light: var(--white);
@@ -243,32 +242,35 @@ html.theme-switching *::after {
   position: relative;
   isolation: isolate;
 }
-.on-night,
 .on-photo {
   color-scheme: dark;
 }
-.on-night {
+/* A roast panel: toasted crema in light, espresso in dark, lit by a leaf glow and a caramel haze. */
+.on-panel {
   background:
-    radial-gradient(60% 70% at 85% 0%, var(--leaf-glow), transparent 70%),
-    radial-gradient(50% 60% at 0% 100%, var(--gold-haze), transparent 70%), var(--night);
-  color: var(--on-night);
-  --text: var(--on-night);
-  --muted: var(--on-night-muted);
-  --line: var(--line-night);
-  --surface: var(--night-2);
-  --accent: var(--leaf);
-  --focus: var(--leaf);
+    radial-gradient(60% 70% at 85% 0%, var(--panel-glow), transparent 70%),
+    radial-gradient(50% 60% at 0% 100%, var(--panel-haze), transparent 70%), var(--panel);
+  color: var(--text);
+  --line: var(--line-panel);
+  --surface: var(--panel-2);
 }
-/* Paper grain over espresso panels. */
-.on-night::before {
+/* Paper grain over roast panels: dark specks on crema, light ones on espresso. */
+.on-panel::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   background: var(--grain);
   opacity: 0.08;
-  filter: invert(1);
   pointer-events: none;
+}
+:root[data-theme='dark'] .on-panel::before {
+  filter: invert(1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .on-panel::before {
+    filter: invert(1);
+  }
 }
 .on-paper {
   background: var(--surface-2);
@@ -312,12 +314,15 @@ html.theme-switching *::after {
     transform: scale(1.35);
   }
 }
-.on-night .tag,
+.on-panel .tag {
+  background: var(--glass-panel);
+  box-shadow: inset 0 0 0 1px var(--line-panel);
+}
 .on-photo .tag {
   background: rgb(30 22 16 / 0.55);
   box-shadow: inset 0 0 0 1px var(--line-night);
 }
-.on-night .tag::before,
+.on-panel .tag::before,
 .on-photo .tag::before {
   background: var(--gold);
   box-shadow: 0 0 0 4px var(--gold-haze);
@@ -438,10 +443,6 @@ html.theme-switching *::after {
 .btn-glass:hover {
   --btn-bg: var(--glass-photo-strong);
 }
-.on-night .btn-primary {
-  --btn-bg: var(--white);
-  --btn-fg: var(--ink-black);
-}
 .btn-sm {
   min-height: 42px;
   padding: 0.5rem 1.1rem;
@@ -535,7 +536,7 @@ a:hover .arrow::after {
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M10 0a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm4.2 6.3-5.4 5.6-2.9-2.8-1.3 1.4 4.2 4 6.8-6.9-1.4-1.3Z'/%3E%3C/svg%3E")
     center / 100% no-repeat;
 }
-.on-night .check-list li::before {
+.on-panel .check-list li::before {
   background-color: var(--gold);
 }
 

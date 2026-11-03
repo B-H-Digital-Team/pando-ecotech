@@ -1,5 +1,5 @@
 ---
-/** A statement on an espresso panel, its last words in italic serif. */
+/** A statement on an roast panel, its last words in italic serif. */
 import Grounds from './Grounds.astro';
 
 interface Props {
@@ -10,7 +10,7 @@ const words = text.split(' ');
 const accent = new Set([words.length - 1, words.length - 2, words.length - 3]);
 ---
 
-<section class="manifesto panel on-night grow-in">
+<section class="manifesto panel on-panel grow-in">
   <Grounds count={14} />
   <div class="container">
     <p class="statement">

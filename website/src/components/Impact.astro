@@ -1,5 +1,5 @@
 ---
-/** "Đóng góp của chúng ta": three photo cards on an espresso panel, numbered in serif. */
+/** "Đóng góp của chúng ta": three photo cards on a roast panel, numbered in serif. */
 import { Image } from 'astro:assets';
 import Headline from './Headline.astro';
 import { IMPACT } from '../data/story';
@@ -13,7 +13,7 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<section class="impact panel on-night">
+<section class="impact panel on-panel">
   <div class="container section">
     <div class="section-head">
       <p class="tag" data-reveal>{t.home.impactTag}</p>
@@ -56,8 +56,8 @@ const t = useTranslations(locale);
     position: relative;
     padding: 0.7rem 0.7rem 1.8rem;
     border-radius: var(--radius-xl);
-    background: var(--glass-night);
-    box-shadow: inset 0 0 0 1px var(--line-night);
+    background: var(--glass-panel);
+    box-shadow: inset 0 0 0 1px var(--line-panel);
   }
   .card-i .photo {
     display: block;
