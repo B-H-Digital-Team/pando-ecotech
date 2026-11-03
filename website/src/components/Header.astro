@@ -82,14 +82,13 @@ const isCurrent = (key: (typeof links)[number]['key']): boolean => page === key 
 </header>
 
 <style>
+  /* A solid bar in the page colour: nothing scrolling underneath shows through. */
   .site-header {
     position: sticky;
     top: 0;
     z-index: 50;
     width: 100%;
-    background: var(--glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--bg);
     box-shadow: 0 1px 0 transparent;
     transition:
       box-shadow 0.4s ease,
