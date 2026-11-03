@@ -38,6 +38,8 @@ const config = {
 };
 // Read the account the way it is printed on bank slips: 0935 832 459.
 const accountGroups = PAYMENT.account.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
+const COPY_ICON = 'M7.5 7h8A1.5 1.5 0 0 1 17 8.5v8a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 6 16.5v-8A1.5 1.5 0 0 1 7.5 7ZM13 4.5A1.5 1.5 0 0 0 11.5 3h-7A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13';
+const DONE_ICON = 'M4 10.5 8 14.5 16 6';
 const ICONS: Record<ShopItem['group'], string> = {
   candle: 'M12 3c1.6 1.8 2.2 3.1 1.6 4.3-.4.9-1.2 1.3-1.6 1.3s-1.2-.4-1.6-1.3C9.8 6.1 10.4 4.8 12 3ZM12 10v2M6 13h12l-1.2 7.2a1 1 0 0 1-1 .8H8.2a1 1 0 0 1-1-.8L6 13Z',
   coaster: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm0 3a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z',
@@ -113,86 +115,85 @@ const ICONS: Record<ShopItem['group'], string> = {
       }
     </div>
 
-    <aside class="summary panel on-panel" aria-labelledby="summary-title">
-      <div class="summary-head">
-        <h2 id="summary-title">{t.order.summary}</h2>
-        <span class="count" data-count hidden></span>
-        <button type="button" class="clear" data-clear hidden>{t.order.clearAll}</button>
+    <aside class="summary" aria-labelledby="summary-title" data-summary>
+      <div class="receipt-wrap">
+        <div class="receipt">
+          <div class="receipt-head">
+            <h2 id="summary-title">{t.order.summary}</h2>
+            <span class="count" data-count hidden></span>
+            <button type="button" class="clear" data-clear hidden>{t.order.clearAll}</button>
+          </div>
+          <ul class="lines" data-lines aria-live="polite">
+            <li class="empty">{t.order.empty}</li>
+          </ul>
+          <fieldset class="area">
+            <legend>{t.order.area}</legend>
+            <label>
+              <input type="radio" name="area" value="inner" checked />
+              <span>
+                <b>{t.order.inner}</b>
+                <small>{money(locale, SHIPPING.inner.min)} - {money(locale, SHIPPING.inner.max)}</small>
+                <small>{format(t.order.eta, { days: SHIPPING.innerDays })}</small>
+              </span>
+            </label>
+            <label>
+              <input type="radio" name="area" value="outer" />
+              <span>
+                <b>{t.order.outer}</b>
+                <small>{money(locale, SHIPPING.outer.min)} - {money(locale, SHIPPING.outer.max)}</small>
+                <small>{format(t.order.eta, { days: SHIPPING.outerDays })}</small>
+              </span>
+            </label>
+            <p class="ship-note">{t.order.shippingNote}</p>
+          </fieldset>
+          <p class="grand">
+            <span>{t.order.total}</span>
+            <b data-total>{money(locale, 0)}</b>
+          </p>
+        </div>
       </div>
-      <div class="lines-box">
-        <ul class="lines" data-lines aria-live="polite">
-          <li class="empty">{t.order.empty}</li>
-        </ul>
-      </div>
-      <fieldset class="area">
-        <legend>{t.order.area}</legend>
-        <label>
-          <input type="radio" name="area" value="inner" checked />
-          <span>
-            <b>{t.order.inner}</b>
-            <small>{money(locale, SHIPPING.inner.min)} - {money(locale, SHIPPING.inner.max)}</small>
-            <small>{format(t.order.eta, { days: SHIPPING.innerDays })}</small>
-          </span>
-        </label>
-        <label>
-          <input type="radio" name="area" value="outer" />
-          <span>
-            <b>{t.order.outer}</b>
-            <small>{money(locale, SHIPPING.outer.min)} - {money(locale, SHIPPING.outer.max)}</small>
-            <small>{format(t.order.eta, { days: SHIPPING.outerDays })}</small>
-          </span>
-        </label>
-        <p class="ship-note">{t.order.shippingNote}</p>
-      </fieldset>
-      <p class="grand">
-        <span>{t.order.total}</span>
-        <b data-total>{money(locale, 0)}</b>
-      </p>
       <div class="actions">
-        <a class="btn btn-accent" href={COMPANY.zalo} rel="noopener" target="_blank" data-send-zalo>{t.order.sendZalo}</a>
-        <button type="button" class="btn btn-ghost" data-copy-order>{t.order.copyOrder}</button>
-        <a class="form-link" href={COMPANY.orderForm} rel="noopener" target="_blank">{t.order.openForm}</a>
+        <a class="btn btn-zalo" href={COMPANY.zalo} rel="noopener" target="_blank" data-send-zalo>{t.order.sendZalo}</a>
+        <button type="button" class="btn btn-ghost btn-sm" data-copy-order>{t.order.copyOrder}</button>
+        <a class="btn btn-ghost btn-sm" href={COMPANY.orderForm} rel="noopener" target="_blank">{t.order.openForm}</a>
       </div>
     </aside>
   </section>
 
-  <section class="section container pay">
-    <div>
+  <section class="section container pay zone" data-tone="cream">
+    <div class="pay-copy">
       <p class="tag" data-reveal>{t.order.payTag}</p>
       <Headline text={t.order.payTitle} />
       <p class="muted" data-reveal>{t.order.payNote}</p>
+      <a class="btn btn-zalo" href={COMPANY.zalo} rel="noopener" target="_blank" data-reveal>{t.order.sendProof}</a>
     </div>
-    <div class="slip-wrap" data-reveal="scale">
-      <div class="slip">
-        <div class="slip-top">
-          <span class="bank-mark" aria-hidden="true">MB</span>
-          <p class="bank-name">
-            <small>{t.order.bank}</small>
-            {PAYMENT.bank}
-          </p>
-        </div>
-        <dl class="slip-body">
-          <div>
-            <dt>{t.order.account}</dt>
-            <dd class="acc">
-              <span class="acc-num" aria-label={PAYMENT.account}>{accountGroups}</span>
-              <button type="button" class="copy" data-copy={PAYMENT.account}>
-                <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
-                  <rect x="7" y="7" width="10" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"></rect>
-                  <path d="M13 4.5A1.5 1.5 0 0 0 11.5 3h-6A2.5 2.5 0 0 0 3 5.5v6A1.5 1.5 0 0 0 4.5 13" fill="none" stroke="currentColor" stroke-width="1.6"></path>
-                </svg>
-                <span class="c1">{t.common.copy}</span><span class="c2">{t.common.copied}</span>
-              </button>
-            </dd>
-          </div>
-          <div>
-            <dt>{t.order.holder}</dt>
-            <dd class="holder">{PAYMENT.holder}</dd>
-          </div>
-        </dl>
-        <div class="slip-strip" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    <dl class="bank" data-reveal-group>
+      <div class="tile t-acc">
+        <dt>{t.order.account}</dt>
+        <dd>
+          <span class="acc-num" aria-label={PAYMENT.account}>{accountGroups}</span>
+          <button type="button" class="copy" data-copy={PAYMENT.account}>
+            <svg class="i-copy" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d={COPY_ICON} /></svg>
+            <svg class="i-done" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d={DONE_ICON} /></svg>
+            <span class="c1">{t.common.copy}</span><span class="c2">{t.common.copied}</span>
+          </button>
+        </dd>
       </div>
-    </div>
+      <div class="tile t-bank">
+        <dt>{t.order.bank}</dt>
+        <dd><span class="bank-mark" aria-hidden="true">MB</span>{PAYMENT.bank}</dd>
+      </div>
+      <div class="tile t-holder">
+        <dt>{t.order.holder}</dt>
+        <dd>
+          <span class="holder">{PAYMENT.holder}</span>
+          <button type="button" class="copy copy-icon" data-copy={PAYMENT.holder} aria-label={`${t.common.copy}: ${t.order.holder}`} title={t.common.copy}>
+            <svg class="i-copy" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d={COPY_ICON} /></svg>
+            <svg class="i-done" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d={DONE_ICON} /></svg>
+          </button>
+        </dd>
+      </div>
+    </dl>
   </section>
 </Base>
 
@@ -250,28 +251,10 @@ const ICONS: Record<ShopItem['group'], string> = {
     .builder {
       grid-template-columns: 1.4fr 1fr;
     }
-    /* Pinned beside the list and never taller than the screen: the lines give up their height first. */
+    /* Pinned beside the list; a receipt taller than the screen scrolls along until its end is in view (--summary-h, order.ts). */
     .summary {
       position: sticky;
-      top: calc(var(--header-h) + 1rem);
-      display: flex;
-      flex-direction: column;
-      max-height: calc(100dvh - var(--header-h) - 2rem);
-      overflow-y: auto;
-      scrollbar-width: none;
-    }
-    .summary::-webkit-scrollbar {
-      display: none;
-    }
-    .summary > * {
-      flex: none;
-    }
-    .summary > .lines-box {
-      flex: 0 1 auto;
-      min-height: 7.5rem;
-    }
-    .summary .lines {
-      max-height: none;
+      top: min(calc(var(--header-h) + 1rem), calc(100dvh - var(--summary-h, 0px) - 1rem));
     }
   }
   .group {
@@ -411,20 +394,38 @@ const ICONS: Record<ShopItem['group'], string> = {
     }
   }
 
+  /* The receipt: an espresso header, the lines on paper with dotted leaders, a torn bottom edge. */
   .summary {
-    margin: 0;
-    padding: clamp(1.4rem, 3vw, 2rem);
-    box-shadow: inset 0 0 0 1px var(--line);
+    display: grid;
+    gap: 1.1rem;
   }
-  .summary-head {
+  .receipt-wrap {
+    filter: drop-shadow(0 24px 30px var(--shadow-ink)) drop-shadow(0 1px 2px var(--shadow-ink));
+  }
+  .receipt {
+    --pad: clamp(1.2rem, 2.6vw, 1.6rem);
+    --tooth: 9px;
+    position: relative;
+    padding-bottom: calc(var(--tooth) + var(--pad));
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: var(--receipt);
+    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(var(--tooth) * 2) 100%;
+  }
+  .receipt-head {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-bottom: 1.1rem;
+    padding: 1.1rem var(--pad);
+    border-radius: var(--radius) var(--radius) 0 0;
+    color: var(--on-night);
+    background:
+      radial-gradient(70% 160% at 100% 0%, color-mix(in srgb, var(--caramel-2) 42%, transparent), transparent 70%),
+      radial-gradient(50% 140% at 0% 100%, color-mix(in srgb, var(--mat-beet-2) 30%, transparent), transparent 70%),
+      linear-gradient(120deg, var(--night), var(--mat-coffee));
   }
   .summary h2 {
     margin: 0;
-    font-size: clamp(1.25rem, 4.6vw, 1.5rem);
+    font-size: clamp(1.2rem, 4.4vw, 1.45rem);
     letter-spacing: -0.02em;
     white-space: nowrap;
   }
@@ -435,8 +436,8 @@ const ICONS: Record<ShopItem['group'], string> = {
   .count {
     padding: 0.15rem 0.6rem;
     border-radius: 999px;
-    background: var(--gold-soft);
-    color: var(--text);
+    background: var(--caramel-1);
+    color: var(--caramel-ink);
     font-size: 0.8rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -447,90 +448,55 @@ const ICONS: Record<ShopItem['group'], string> = {
     padding: 0.3rem 0.85rem;
     border: 0;
     border-radius: 999px;
-    background: transparent;
-    color: var(--muted);
-    box-shadow: inset 0 0 0 1px var(--line);
+    background: var(--glass-night);
+    color: var(--on-night);
+    box-shadow: inset 0 0 0 1px var(--line-night);
     font: inherit;
     font-size: 0.85rem;
     cursor: pointer;
     transition:
       color 0.2s ease,
-      background-color 0.2s ease,
-      box-shadow 0.2s ease;
+      background-color 0.2s ease;
   }
   .clear:hover {
-    color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 8%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 35%, transparent);
+    background: var(--mat-beet);
+    color: var(--ink-black);
   }
   .count[hidden],
   .clear[hidden] {
     display: none;
   }
-  /* The chosen lines scroll inside their box, without a bar; a fade says more lines wait below (order.ts). */
-  .lines-box {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    background: var(--surface);
-    box-shadow: inset 0 0 0 1px var(--line);
-  }
-  .lines-box::after {
-    content: '';
-    position: absolute;
-    inset: auto 1px 1px;
-    height: 2.6rem;
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-    background: linear-gradient(transparent, var(--surface));
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-  }
-  .lines-box:global(.has-more)::after {
-    opacity: 1;
-  }
+  /* Every chosen line is listed: the receipt grows with the order. */
   .lines {
     list-style: none;
     margin: 0;
-    padding: 0.35rem;
-    display: grid;
-    align-content: start;
-    gap: 0.25rem;
-    min-height: 0;
-    max-height: 19rem;
-    overflow: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: none;
-  }
-  .lines::-webkit-scrollbar {
-    display: none;
+    padding: 0.4rem var(--pad) 0;
   }
   .lines :global(.line) {
     display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.55rem 0.4rem 0.55rem 0.75rem;
-    border-radius: calc(var(--radius-sm) - 4px);
-    font-size: 0.93rem;
+    grid-template-columns: minmax(0, max-content) minmax(1rem, 1fr) auto auto;
+    align-items: start;
+    column-gap: 0.55rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed var(--line-strong);
+    font-size: 0.95rem;
     animation: rise 0.45s var(--ease-out) both;
-    transition: background-color 0.2s ease;
-  }
-  .lines :global(.line:hover) {
-    background: var(--hover);
   }
   .lines :global(.line-name) {
     display: grid;
-    gap: 0.1rem;
+    gap: 0.15rem;
+    font-weight: 500;
     line-height: 1.35;
   }
   .lines :global(.line-name small) {
     color: var(--muted);
     font-size: 0.82rem;
+    font-weight: 400;
     font-variant-numeric: tabular-nums;
+  }
+  .lines :global(.leader) {
+    margin-top: 0.95em;
+    border-bottom: 2px dotted var(--line-strong);
   }
   .lines :global(.line b) {
     font-weight: 600;
@@ -540,8 +506,9 @@ const ICONS: Record<ShopItem['group'], string> = {
   .lines :global(.line-remove) {
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
+    margin: -0.15rem -0.3rem 0 0;
     border: 0;
     border-radius: 50%;
     background: transparent;
@@ -557,7 +524,8 @@ const ICONS: Record<ShopItem['group'], string> = {
     background: color-mix(in srgb, var(--danger) 10%, transparent);
   }
   .lines :global(.empty) {
-    padding: 1.1rem 0.8rem;
+    padding: 1.4rem 0.4rem 1.2rem;
+    border-bottom: 1px dashed var(--line-strong);
     color: var(--muted);
     font-size: 0.92rem;
     text-align: center;
@@ -567,7 +535,7 @@ const ICONS: Record<ShopItem['group'], string> = {
     padding: 0;
     border: 0;
     background: none;
-    color: var(--accent);
+    color: var(--gold);
     font: inherit;
     font-weight: 600;
     text-decoration: underline;
@@ -579,7 +547,7 @@ const ICONS: Record<ShopItem['group'], string> = {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
-    margin: 0 0 1rem;
+    margin: 1.1rem var(--pad) 0;
     padding: 0;
     border: 0;
   }
@@ -593,7 +561,10 @@ const ICONS: Record<ShopItem['group'], string> = {
     grid-column: 1 / -1;
     margin-bottom: 0.1rem;
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
   .area label {
     display: flex;
@@ -601,7 +572,7 @@ const ICONS: Record<ShopItem['group'], string> = {
     align-items: flex-start;
     padding: 0.65rem 0.7rem;
     border-radius: var(--radius-sm);
-    box-shadow: inset 0 0 0 1px var(--line);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
     font-size: 0.93rem;
     line-height: 1.35;
     cursor: pointer;
@@ -613,12 +584,12 @@ const ICONS: Record<ShopItem['group'], string> = {
     background: var(--hover);
   }
   .area label:has(input:checked) {
-    background: var(--surface);
-    box-shadow: inset 0 0 0 1.5px var(--accent);
+    background: var(--gold-soft);
+    box-shadow: inset 0 0 0 1.5px var(--gold);
   }
   .area input {
     flex: none;
-    accent-color: var(--accent);
+    accent-color: var(--caramel-3);
     margin: 0.2rem 0 0;
   }
   .area span {
@@ -642,12 +613,20 @@ const ICONS: Record<ShopItem['group'], string> = {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin: 0 0 1.2rem;
+    gap: 1rem;
+    margin: 1.2rem var(--pad) 0;
     padding-top: 1rem;
-    border-top: 1px solid var(--line);
+    border-top: 3px double var(--line-strong);
+  }
+  .grand span {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
   .grand b {
-    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
     font-weight: 500;
     letter-spacing: -0.04em;
     color: var(--gold);
@@ -661,141 +640,139 @@ const ICONS: Record<ShopItem['group'], string> = {
       transform: scale(1.08);
     }
   }
+  /* Zalo first and full width; the two other ways sit side by side when they fit on one line each. */
   .actions {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr));
     gap: 0.6rem;
   }
-  .form-link {
-    justify-self: center;
-    padding: 0.5rem;
-    color: var(--muted);
-    font-size: 0.92rem;
-    text-underline-offset: 4px;
+  .actions .btn {
+    white-space: nowrap;
   }
-  .form-link:hover {
-    color: var(--text);
+  .actions .btn-zalo {
+    grid-column: 1 / -1;
+  }
+  .btn-zalo {
+    --btn-bg: var(--zalo);
+    --btn-fg: var(--white);
+    font-weight: 600;
+  }
+  .btn-zalo:hover {
+    --btn-bg: var(--zalo-deep);
   }
   .actions :global(.is-done) {
-    --btn-bg: var(--accent-soft);
-    --btn-fg: var(--accent-strong);
+    --btn-bg: var(--gold-soft);
+    --btn-fg: var(--text);
   }
 
+  /* Payment: the details as tiles in different colours, the account number the largest. */
   .pay {
     display: grid;
-    gap: clamp(2rem, 5vw, 5rem);
+    gap: clamp(2rem, 5vw, 4.5rem);
     align-items: center;
   }
   @media (min-width: 900px) {
     .pay {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 0.9fr 1.1fr;
     }
   }
-  /* The transfer slip: a coloured stub, a torn perforation, the details on paper, a strip of the materials' colours. */
-  .slip-wrap {
-    width: 100%;
-    max-width: 30rem;
-    filter: drop-shadow(0 22px 34px var(--shadow-ink)) drop-shadow(0 2px 3px var(--shadow-ink));
+  .pay-copy .btn {
+    margin-top: 0.6rem;
   }
-  .slip {
-    --cut: 6.6rem;
-    --notch: 13px;
-    position: relative;
+  .bank {
     display: grid;
-    border-radius: 22px;
-    overflow: hidden;
-    background: var(--surface);
-    mask:
-      radial-gradient(circle var(--notch) at 0 var(--cut), #0000 96%, #000) left / 51% 100% no-repeat,
-      radial-gradient(circle var(--notch) at 100% var(--cut), #0000 96%, #000) right / 51% 100% no-repeat;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
   }
-  .slip-top {
+  @media (max-width: 520px) {
+    .bank {
+      grid-template-columns: 1fr;
+    }
+  }
+  .tile {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-content: space-between;
+    gap: 1.4rem;
+    min-height: 8.5rem;
+    padding: clamp(1.1rem, 2.6vw, 1.5rem);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .tile dt {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .tile dd {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.9rem;
-    height: var(--cut);
-    padding-inline: clamp(1.3rem, 3vw, 1.8rem);
+    gap: 0.7rem 1rem;
+    margin: 0;
+  }
+  /* The account number on ink blue, ringed like a ripple. */
+  .t-acc {
+    grid-column: 1 / -1;
+    min-height: 11rem;
     color: var(--white);
     background:
-      radial-gradient(60% 120% at 100% 0%, color-mix(in srgb, var(--mat-beet) 75%, transparent), transparent 70%),
-      radial-gradient(55% 140% at 78% 120%, color-mix(in srgb, var(--caramel-1) 70%, transparent), transparent 70%),
-      radial-gradient(50% 120% at 42% 130%, color-mix(in srgb, var(--slip-lime) 45%, transparent), transparent 70%),
-      linear-gradient(120deg, var(--slip-ink) 10%, var(--slip-blue) 55%);
+      repeating-radial-gradient(circle at 100% 0%, transparent 0 34px, rgb(255 255 255 / 0.06) 35px 36px),
+      radial-gradient(60% 90% at 100% 0%, color-mix(in srgb, var(--slip-sky) 45%, transparent), transparent 70%),
+      radial-gradient(50% 80% at 0% 100%, color-mix(in srgb, var(--mat-beet-2) 40%, transparent), transparent 70%),
+      linear-gradient(135deg, var(--slip-ink), var(--slip-blue));
+  }
+  .t-acc dt {
+    color: rgb(255 255 255 / 0.7);
+  }
+  .t-acc dd {
+    justify-content: space-between;
+  }
+  .acc-num {
+    font-size: clamp(2rem, 4.4vw, 2.9rem);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .t-bank {
+    background:
+      radial-gradient(80% 90% at 100% 100%, var(--glow-sky), transparent 70%),
+      var(--tone-sky);
+  }
+  .t-holder {
+    background:
+      radial-gradient(80% 90% at 100% 100%, var(--glow-beet), transparent 70%),
+      var(--tone-beet);
+  }
+  .t-bank dd,
+  .holder {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .t-holder dd {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+  .holder {
+    letter-spacing: 0.02em;
   }
   .bank-mark {
     display: grid;
     place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: var(--white);
-    color: var(--slip-blue);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--slip-blue);
+    color: var(--white);
+    font-size: 0.9rem;
     font-weight: 800;
-    font-size: 1.05rem;
     letter-spacing: -0.03em;
-  }
-  .bank-name {
-    display: grid;
-    margin: 0;
-    font-size: 1.3rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-  }
-  .bank-name small {
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--white) 75%, transparent);
-  }
-  .slip-body {
-    position: relative;
-    display: grid;
-    gap: 1.25rem;
-    margin: 0;
-    padding: clamp(1.5rem, 3.4vw, 2rem) clamp(1.3rem, 3vw, 1.8rem) clamp(1.4rem, 3vw, 1.8rem);
-  }
-  /* The perforation between the stub and the details. */
-  .slip-body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: calc(var(--notch) + 8px);
-    right: calc(var(--notch) + 8px);
-    height: 2px;
-    background: repeating-linear-gradient(90deg, var(--line-strong) 0 7px, transparent 7px 13px);
-  }
-  .slip-body dt {
-    margin-bottom: 0.35rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .slip-body dd {
-    margin: 0;
-  }
-  .acc {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem 1rem;
-  }
-  .acc-num {
-    font-size: clamp(1.7rem, 3.6vw, 2.25rem);
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
-    color: var(--text);
-  }
-  .holder {
-    font-size: 1.05rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
   .copy {
     display: inline-flex;
@@ -803,14 +780,14 @@ const ICONS: Record<ShopItem['group'], string> = {
     gap: 0.45rem;
     flex: none;
     white-space: nowrap;
-    min-height: 40px;
-    padding: 0.35rem 1rem 0.35rem 0.85rem;
+    min-height: 42px;
+    padding: 0.35rem 1.05rem 0.35rem 0.9rem;
     border: 0;
     border-radius: 999px;
-    background: var(--text);
-    color: var(--bg);
+    background: var(--white);
+    color: var(--slip-ink);
     font: inherit;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
     transition:
@@ -818,42 +795,48 @@ const ICONS: Record<ShopItem['group'], string> = {
       color 0.2s ease,
       transform 0.3s var(--ease-spring);
   }
+  .copy:hover {
+    background: var(--slip-lime);
+  }
   .copy:active {
     transform: scale(0.95);
   }
-  .copy .c2 {
-    display: none;
+  .copy path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-  .copy:global(.is-copied) {
-    background: var(--accent-soft);
-    color: var(--accent-strong);
-  }
+  .copy .i-done,
+  .copy .c2,
+  .copy:global(.is-copied) .i-copy,
   .copy:global(.is-copied) .c1 {
     display: none;
+  }
+  .copy:global(.is-copied) .i-done {
+    display: block;
   }
   .copy:global(.is-copied) .c2 {
     display: inline;
   }
-  .slip-strip {
-    display: flex;
-    height: 8px;
+  .copy:global(.is-copied) {
+    background: var(--slip-lime);
   }
-  .slip-strip span {
-    flex: 1;
+  .copy-icon {
+    justify-content: center;
+    width: 40px;
+    min-height: 40px;
+    padding: 0;
+    background: var(--glass-panel);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
   }
-  .slip-strip span:nth-child(1) {
-    background: var(--mat-coffee);
+  .copy-icon:hover,
+  .copy-icon:global(.is-copied) {
+    background: var(--surface);
   }
-  .slip-strip span:nth-child(2) {
-    background: var(--mat-tea);
-  }
-  .slip-strip span:nth-child(3) {
-    background: var(--mat-bagasse-2);
-  }
-  .slip-strip span:nth-child(4) {
-    background: var(--mat-beet);
-  }
-  .slip-strip span:nth-child(5) {
-    background: var(--slip-blue);
+  .copy-icon:global(.is-copied) {
+    color: var(--success);
   }
 </style>

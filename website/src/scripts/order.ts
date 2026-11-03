@@ -1,8 +1,9 @@
 /**
  * The order builder (dat-hang.astro): quantity steppers, a live summary with
  * subtotal and the shipping range for the chosen area, and an order text the
- * visitor copies before sending it on Zalo. Each line can be removed, and the
- * whole order cleared (with an undo). Quantities live in the shared
+ * visitor copies before sending it on Zalo. The summary is a receipt that
+ * lists every line; each line can be removed, and the whole order cleared
+ * (with an undo). Quantities live in the shared
  * order (cart.ts), so items added on product pages show up here.
  */
 interface Config {
@@ -50,12 +51,11 @@ if (root) {
   };
   load();
 
-  // The list hides its scrollbar: a fade at the bottom shows while more lines wait below.
-  const fade = (): void => {
-    lines.parentElement?.classList.toggle('has-more', lines.scrollHeight - lines.scrollTop - lines.clientHeight > 2);
-  };
-  lines.addEventListener('scroll', fade, { passive: true });
-  addEventListener('resize', fade, { passive: true });
+  // The pinned receipt needs its height to scroll along while it is taller than the screen (dat-hang.astro).
+  const summary = root.querySelector<HTMLElement>('[data-summary]');
+  if (summary && 'ResizeObserver' in window) {
+    new ResizeObserver(() => summary.style.setProperty('--summary-h', `${summary.offsetHeight}px`)).observe(summary);
+  }
 
   const subtotal = (): number => config.items.reduce((sum, item) => sum + (qty.get(item.id) ?? 0) * item.price, 0);
 
@@ -107,10 +107,12 @@ if (root) {
       remove.setAttribute('aria-label', config.text.remove.replace('{name}', item.name));
       remove.title = remove.getAttribute('aria-label') ?? '';
       remove.addEventListener('click', () => set(item.id, 0));
-      li.append(name, price, remove);
+      const leader = document.createElement('span');
+      leader.className = 'leader';
+      leader.setAttribute('aria-hidden', 'true');
+      li.append(name, leader, price, remove);
       lines.append(li);
     }
-    fade();
     const pieces = chosen.reduce((sum, item) => sum + (qty.get(item.id) ?? 0), 0);
     countEl.hidden = clearButton.hidden = !chosen.length;
     countEl.textContent = config.text.count.replace('{n}', String(pieces));

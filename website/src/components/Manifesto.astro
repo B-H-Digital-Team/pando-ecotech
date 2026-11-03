@@ -1,5 +1,6 @@
 ---
-/** A statement on an roast panel, its last words in italic serif. */
+/** A statement on a roast panel, its last words in italic serif, with a few grounds, bubbles and leaves rising behind it. */
+import Drift from './Drift.astro';
 import Grounds from './Grounds.astro';
 
 interface Props {
@@ -11,7 +12,8 @@ const accent = new Set([words.length - 1, words.length - 2, words.length - 3]);
 ---
 
 <section class="manifesto panel on-panel grow-in">
-  <Grounds count={14} />
+  <Grounds count={7} />
+  <Drift count={16} />
   <div class="container">
     <p class="statement">
       {
@@ -28,6 +30,10 @@ const accent = new Set([words.length - 1, words.length - 2, words.length - 3]);
 <style>
   .manifesto {
     padding-block: clamp(6rem, 13vw, 11rem);
+  }
+  .container {
+    position: relative;
+    z-index: 1;
   }
   .statement {
     margin: 0 auto;

@@ -146,7 +146,7 @@ html.pour-in.is-draining .pour-sheet {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #0068ff;
+  background: var(--zalo);
   color: var(--white);
   box-shadow: 0 16px 34px -10px rgb(0 104 255 / 0.6);
   text-decoration: none;
@@ -159,7 +159,7 @@ html.pour-in.is-draining .pour-sheet {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: #0068ff;
+  background: var(--zalo);
   opacity: 0.5;
   z-index: -1;
   animation: bubble-ping 2.4s ease-out infinite;

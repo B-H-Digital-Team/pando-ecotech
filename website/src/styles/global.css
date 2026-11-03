@@ -242,6 +242,57 @@ html.theme-switching *::after {
   position: relative;
   isolation: isolate;
 }
+/*
+ * A zone: one section on its own sheet, inset like the panels and tinted by
+ * the material in data-tone, with that material's glow in a corner. Sheets
+ * stacked with a gap read as separate rooms instead of one long page.
+ */
+.zone {
+  --zone-bg: var(--tone-cream);
+  --zone-glow: var(--glow-cream);
+  position: relative;
+  isolation: isolate;
+  margin: var(--frame);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(55% 65% at var(--zone-at, 100% 0%), var(--zone-glow), transparent 70%),
+    radial-gradient(40% 50% at var(--zone-at-2, 0% 100%), color-mix(in srgb, var(--zone-glow) 60%, transparent), transparent 70%),
+    var(--zone-bg);
+  box-shadow: inset 0 0 0 1px var(--line);
+  overflow: clip;
+}
+.zone[data-tone='coffee'] {
+  --zone-bg: var(--tone-coffee);
+  --zone-glow: var(--glow-coffee);
+  --zone-at: 0% 0%;
+  --zone-at-2: 100% 100%;
+}
+.zone[data-tone='tea'] {
+  --zone-bg: var(--tone-tea);
+  --zone-glow: var(--glow-tea);
+}
+.zone[data-tone='bagasse'] {
+  --zone-bg: var(--tone-bagasse);
+  --zone-glow: var(--glow-bagasse);
+  --zone-at: 50% 0%;
+}
+.zone[data-tone='beet'] {
+  --zone-bg: var(--tone-beet);
+  --zone-glow: var(--glow-beet);
+  --zone-at: 0% 0%;
+  --zone-at-2: 100% 100%;
+}
+.zone[data-tone='sky'] {
+  --zone-bg: var(--tone-sky);
+  --zone-glow: var(--glow-sky);
+}
+/* A section that is its own container keeps its content on the container's width inside the sheet. */
+.zone.container {
+  width: auto;
+  max-width: none;
+  margin-inline: var(--frame);
+  padding-inline: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
+}
 .on-photo {
   color-scheme: dark;
 }

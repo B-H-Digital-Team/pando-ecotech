@@ -1,0 +1,184 @@
+---
+/**
+ * Bubbles and leaves rising through a panel at three depths: far ones small,
+ * blurred and faint, near ones large and sharp. Each piece rises on its own
+ * slow path while a second layer sways it (pure CSS; positions are fixed at
+ * build time so the page is stable). Static and faint with reduced motion.
+ */
+interface Props {
+  count?: number;
+}
+const { count = 16 } = Astro.props;
+// A small deterministic generator: the same pieces on every build.
+let seed = 11;
+const rand = (): number => {
+  seed = (seed * 16807) % 2147483647;
+  return seed / 2147483647;
+};
+const DEPTHS = [
+  { name: 'far', size: [34, 64], blur: 5, opacity: 0.42, dur: [26, 34] },
+  { name: 'mid', size: [58, 100], blur: 1.6, opacity: 0.62, dur: [20, 27] },
+  { name: 'near', size: [96, 160], blur: 0, opacity: 0.75, dur: [16, 22] },
+] as const;
+const LEAF_TONES = ['leaf-a', 'leaf-b', 'leaf-c'];
+const pieces = Array.from({ length: count }, (_, index) => {
+  const depth = DEPTHS[index % 3];
+  const leaf = rand() > 0.55;
+  const between = ([min, max]: readonly [number, number]): number => min + rand() * (max - min);
+  return {
+    kind: leaf ? 'leaf' : 'bubble',
+    tone: LEAF_TONES[Math.floor(rand() * LEAF_TONES.length)],
+    depth: depth.name,
+    style: [
+      `--x:${Math.round(4 + rand() * 92)}%`,
+      `--s:${Math.round(between(depth.size) * (leaf ? 0.8 : 1))}px`,
+      `--blur:${depth.blur}px`,
+      `--o:${depth.opacity}`,
+      `--dur:${between(depth.dur).toFixed(1)}s`,
+      `--delay:${(-rand() * 30).toFixed(1)}s`,
+      `--sway:${Math.round(18 + rand() * 40)}px`,
+      `--sway-dur:${(4 + rand() * 4).toFixed(1)}s`,
+      `--turn:${Math.round(rand() * 360)}deg`,
+    ].join(';'),
+  };
+});
+---
+
+<div class="drift-layer" aria-hidden="true">
+  {
+    pieces.map((piece) => (
+      <span class:list={['piece', piece.depth]} style={piece.style}>
+        <span class="sway">
+          {piece.kind === 'bubble' ? (
+            <span class="bubble" />
+          ) : (
+            <svg class:list={['leaf', piece.tone]} viewBox="0 0 40 56">
+              <path d="M20 2C8 12 3 24 6 38c2 8 7 13 14 16 7-3 12-8 14-16 3-14-2-26-14-36Z" />
+              <path class="rib" d="M20 8v44M20 22l-6-5M20 30l7-6M20 38l-7-5M20 45l6-4" />
+            </svg>
+          )}
+        </span>
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  .drift-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    container-type: size;
+  }
+  .piece {
+    position: absolute;
+    left: var(--x);
+    top: 100%;
+    width: var(--s);
+    height: var(--s);
+    opacity: 0;
+    filter: blur(var(--blur));
+    animation: rise-through var(--dur) linear var(--delay) infinite;
+  }
+  .sway {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: sway var(--sway-dur) ease-in-out var(--delay) infinite alternate;
+  }
+  /* A soap bubble: a thin tinted rim with a film of leaf, caramel, beet and sky, and two highlights. */
+  .bubble {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 32% 28%, var(--bubble-shine) 0 6%, transparent 12%),
+      radial-gradient(circle at 68% 74%, color-mix(in srgb, var(--bubble-shine) 55%, transparent) 0 3%, transparent 8%),
+      radial-gradient(circle closest-side, transparent 60%, var(--bubble-tint) 84%, var(--bubble-rim) 97%, transparent 100%);
+  }
+  .bubble::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from var(--turn), var(--leaf), var(--caramel-1), var(--mat-beet), var(--slip-sky), var(--leaf));
+    opacity: 0.45;
+    mask: radial-gradient(circle closest-side, transparent 64%, #000 92%, transparent 100%);
+  }
+  .leaf {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    rotate: var(--turn);
+    animation: tumble calc(var(--sway-dur) * 2) ease-in-out var(--delay) infinite alternate;
+  }
+  .leaf path {
+    fill: var(--leaf-fill);
+  }
+  .leaf .rib {
+    fill: none;
+    stroke: var(--leaf-rib);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+  }
+  .leaf-a {
+    --leaf-fill: var(--logo-green);
+  }
+  .leaf-b {
+    --leaf-fill: var(--mat-tea-2);
+  }
+  .leaf-c {
+    --leaf-fill: color-mix(in srgb, var(--accent) 80%, var(--leaf));
+  }
+  .leaf {
+    --leaf-rib: color-mix(in srgb, var(--leaf-fill) 55%, var(--white));
+  }
+  @keyframes rise-through {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    10% {
+      opacity: var(--o);
+    }
+    85% {
+      opacity: var(--o);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(calc(-100cqh - 140%));
+    }
+  }
+  @keyframes sway {
+    from {
+      transform: translateX(calc(var(--sway) * -1));
+    }
+    to {
+      transform: translateX(var(--sway));
+    }
+  }
+  @keyframes tumble {
+    from {
+      transform: rotate(-28deg);
+    }
+    to {
+      transform: rotate(34deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .piece,
+    .sway,
+    .leaf {
+      animation: none;
+    }
+    .piece {
+      top: calc(var(--x) * 0.85);
+      opacity: calc(var(--o) * 0.5);
+    }
+  }
+</style>

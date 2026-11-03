@@ -50,12 +50,19 @@
   --caramel-3: #9a6224;
   --caramel-ink: #2a1904;
 
-  /* Page tones: the ground drifts towards a material as its section passes (motion.ts). */
-  --tone-cream: var(--bg);
-  --tone-coffee: light-dark(#efe3d3, #1a120c);
-  --tone-tea: light-dark(#e8ecdc, #10140d);
-  --tone-bagasse: light-dark(#f7f2e3, #16130d);
-  --tone-beet: light-dark(#f6e7e7, #190e10);
+  /* Zones (.zone[data-tone]): each section on its own sheet, tinted by a material and lit by its glow. */
+  --tone-cream: light-dark(#fffaf3, #18130f);
+  --tone-coffee: light-dark(#efe2d1, #1d150f);
+  --tone-tea: light-dark(#e6ebd8, #121810);
+  --tone-bagasse: light-dark(#f4ecd6, #1a160e);
+  --tone-beet: light-dark(#f6e4e4, #1e1114);
+  --tone-sky: light-dark(#e5ecf4, #0f151d);
+  --glow-cream: light-dark(rgb(214 160 90 / 0.22), rgb(214 160 90 / 0.12));
+  --glow-coffee: light-dark(rgb(150 96 52 / 0.2), rgb(201 141 67 / 0.14));
+  --glow-tea: light-dark(rgb(124 179 66 / 0.24), rgb(124 179 66 / 0.12));
+  --glow-bagasse: light-dark(rgb(214 175 90 / 0.3), rgb(214 175 90 / 0.12));
+  --glow-beet: light-dark(rgb(216 151 164 / 0.34), rgb(216 151 164 / 0.14));
+  --glow-sky: light-dark(rgb(42 94 168 / 0.16), rgb(141 180 238 / 0.12));
 
   /* Materials (product swatches) */
   --mat-coffee: #4a3226;
@@ -70,11 +77,22 @@
   --mat-rose-2: #c98a83;
   --titan: #6d6f72;
 
-  /* Transfer slip (dat-hang.astro): the bank's blue, warmed by the materials' colours. Fixed in both themes. */
+  /* Bank details (dat-hang.astro): the bank's ink blue, a sky highlight and a lime for "copied". Fixed in both themes. */
   --slip-ink: #10224a;
   --slip-blue: #2453a0;
   --slip-sky: #8ab8f2;
   --slip-lime: #b6d96a;
+
+  /* The order receipt (dat-hang.astro): warm paper, a shade lighter than the page in dark mode. */
+  --receipt: light-dark(#fffdf8, #211913);
+  /* Zalo's own blue, for the buttons that open Zalo. */
+  --zalo: #0068ff;
+  --zalo-deep: #0050c8;
+
+  /* Drifting bubbles (Drift.astro): a rim that reads on crema and on espresso. */
+  --bubble-rim: light-dark(rgb(46 107 69 / 0.42), rgb(255 245 230 / 0.5));
+  --bubble-tint: light-dark(rgb(46 107 69 / 0.08), rgb(255 245 230 / 0.07));
+  --bubble-shine: light-dark(rgb(255 255 255 / 0.95), rgb(255 250 240 / 0.85));
 
   /* Feedback */
   --danger: light-dark(#b3261e, #ff8a80);

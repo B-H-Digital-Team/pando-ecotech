@@ -231,6 +231,7 @@ const vi = {
     account: 'Số tài khoản',
     holder: 'Chủ tài khoản',
     payNote: 'Sau khi chuyển khoản, vui lòng gửi ảnh xác nhận thanh toán cho shop để Pando xác nhận đơn hàng.',
+    sendProof: 'Gửi ảnh chuyển khoản qua Zalo',
     steps: [
       { title: 'Chọn sản phẩm', text: 'Thêm món và số lượng ở danh sách bên trái.' },
       { title: 'Chuyển khoản', text: 'Thanh toán tiền hàng vào tài khoản MB Bank của Pando.' },

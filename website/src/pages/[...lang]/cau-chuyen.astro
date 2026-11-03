@@ -27,7 +27,7 @@ const t = useTranslations(locale);
 >
   <PageHeader locale={locale} tag={t.story.tag} title={t.story.title} lead={t.story.lead} photo="karst-valley" crumbs={[{ name: t.nav.story, path: '' }]} />
 
-  <section class="section container name">
+  <section class="section container name zone" data-tone="coffee">
     <div class="name-copy">
       <p class="tag" data-reveal>{t.story.nameTag}</p>
       <Headline text={t.story.nameTitle} />
@@ -39,7 +39,7 @@ const t = useTranslations(locale);
     </a>
   </section>
 
-  <section class="section timeline" aria-labelledby="timeline-title">
+  <section class="section timeline zone" data-tone="tea" aria-labelledby="timeline-title">
     <div class="container">
       <div class="section-head">
         <p class="tag" data-reveal>{t.story.timelineTag}</p>
@@ -91,7 +91,7 @@ const t = useTranslations(locale);
     </div>
   </section>
 
-  <section class="section container guide">
+  <section class="section container guide zone" data-tone="bagasse">
     <div class="photo guide-photo drift stain">
       <Image src={photo('expo-team')} alt="" widths={[480, 800, 1200]} sizes="(min-width: 960px) 45vw, 92vw" />
     </div>
@@ -105,14 +105,14 @@ const t = useTranslations(locale);
     </div>
   </section>
 
-  <section class="section-tight container vision">
+  <section class="section-tight container vision zone" data-tone="beet">
     <blockquote data-reveal="scale">
       <p class="serif">“{t.story.visionQuote}”</p>
       <footer>{t.story.visionBy}</footer>
     </blockquote>
   </section>
 
-  <section class="section-tight container">
+  <section class="section-tight container zone" data-tone="sky">
     <Gallery photos={['expo-group', 'history-students', 'expo-visitors', 'expo-group-2', 'history-startup-wheel', 'expo-booth']} alt="Pando Ecotech" />
   </section>
 </Base>

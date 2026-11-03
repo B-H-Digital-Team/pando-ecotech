@@ -2,7 +2,6 @@
  * The site's runtime, on every page:
  * - smooth inertial scroll (scroll.ts) and the floating order bar (cart.ts);
  * - entrances: [data-reveal] / [data-reveal-group] get .is-on once in view;
- * - [data-tone] sections tint the page ground towards their material;
  * - the coffee-pour transition between pages (links without [data-vt]);
  * - header bar, reading progress, back to top, light/dark toggle (a circle
  *   grows from the button), pointer glow, tilt, magnetic buttons;
@@ -42,31 +41,13 @@ function initPreloader(): void {
 
 /** Blocks with endless loops (specks, reels, stamps) pause them while off screen. */
 function initIdle(): void {
-  const blocks = document.querySelectorAll<HTMLElement>('.grounds, .marquee, .stamp, .hero .bloom');
+  const blocks = document.querySelectorAll<HTMLElement>('.grounds, .drift-layer, .marquee, .stamp, .hero .bloom');
   if (!blocks.length || !('IntersectionObserver' in window)) return;
   const observer = new IntersectionObserver(
     (entries) => entries.forEach((entry) => entry.target.classList.toggle('is-idle', !entry.isIntersecting)),
     { rootMargin: '100px 0px' },
   );
   blocks.forEach((block) => observer.observe(block));
-}
-
-/** The page ground drifts towards the material of the section in the middle of the screen. */
-function initTones(): void {
-  const sections = document.querySelectorAll<HTMLElement>('[data-tone]');
-  if (!sections.length) return;
-  const page = document.querySelector<HTMLElement>('.page');
-  if (!page) return;
-  // A plain background on .page (not an inherited variable): only that box repaints.
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) page.style.backgroundColor = `var(--tone-${(entry.target as HTMLElement).dataset.tone})`;
-      }
-    },
-    { rootMargin: '-48% 0px -48% 0px' },
-  );
-  sections.forEach((section) => observer.observe(section));
 }
 
 function initScroll(): void {
@@ -364,7 +345,6 @@ function initMenu(): void {
 
 startScroll();
 initReveals();
-initTones();
 initPreloader();
 initIdle();
 initScroll();

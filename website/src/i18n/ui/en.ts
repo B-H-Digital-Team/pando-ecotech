@@ -233,6 +233,7 @@ const en: Dict = {
     account: 'Account number',
     holder: 'Account holder',
     payNote: 'After transferring, please send a screenshot of the payment to the shop so Pando can confirm your order.',
+    sendProof: 'Send the transfer screenshot on Zalo',
     steps: [
       { title: 'Choose products', text: 'Add items and quantities from the list.' },
       { title: 'Transfer', text: 'Pay for the goods to Pando’s MB Bank account.' },
